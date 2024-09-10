@@ -5,6 +5,7 @@ import type { IUser } from "~/interfaces/IUser"
 
 export const useAuthStore = defineStore('auth', () => {
     const accessToken = useCookie<string | undefined>('access_token')
+    
     const refreshToken = useCookie<string | undefined>('refresh_token')
     
     const user = ref<IUser | undefined | null>()

@@ -1,7 +1,7 @@
 <template>
     <NuxtLayout>
-        <div class="w-full">
-            {{ user}}
+        <div class="p-4 w-full">
+          <NuxtPage/>
         </div>
     </NuxtLayout>
 </template>
