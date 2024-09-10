@@ -1,10 +1,23 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  compatibilityDate: '2024-04-03',
-  devtools: { enabled: true },
   modules: [
-    '@nuxtjs/tailwindcss',
+    '@ant-design-vue/nuxt',
     '@pinia/nuxt',
-    '@ant-design-vue/nuxt'
-  ]
-})
+    '@nuxtjs/tailwindcss',
+  ],
+
+  vite: {
+    optimizeDeps: {
+      include: ['ant-design-vue/es'],
+    },
+  },
+
+  // Các cấu hình khác...
+  runtimeConfig: {
+    public: {
+      baseURL: process.env.BASE_URL,
+    },
+  },
+
+  compatibilityDate: '2024-09-10'
+});
