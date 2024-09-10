@@ -18,6 +18,13 @@
                 <a-tag v-if="text==ERoomStatus.BOOKED" color="red">{{ RoomStatusText[text] }}</a-tag>
                 <a-tag v-if="text==ERoomStatus.MAINTENANCE" color="yellow">{{ RoomStatusText[text] }}</a-tag>
             </template>
+
+            <template v-if="column.dataIndex === 'actions'">
+              <div class="space-x-2 w-fit">
+                <a-button type="primary" @click="">Sửa</a-button>
+                <a-button danger @click="">Xóa</a-button> 
+              </div>
+          </template>
         </template>
 
         <template #title>
@@ -27,6 +34,8 @@
           </div>
         </template>
       </a-table>
+
+      <rooms-modal-edit :room="roomSelected" :open="openModalUpdate" :room-type="roomType"/>
   </div>
 </template>
 
@@ -35,7 +44,10 @@ import { ref } from 'vue';
 import { useAuthStore } from '#imports';
 import type { IRoom } from '~/interfaces/IRoom';
 import { RoomStatusText, ERoomStatus } from '~/enums/ERoomStatus';
+import type { IRoomType } from '~/interfaces/IRoomType';
 
+const roomSelected = ref<IRoom>();
+const openModalUpdate = ref(true);
 const authStore = useAuthStore();
 const {accessToken} = authStore;
 const columns = ref([
@@ -61,6 +73,7 @@ const columns = ref([
   { 
     title: 'Hành Động', 
     key: 'actions',
+    dataIndex: 'actions',
     
   },
 ]);
@@ -81,6 +94,15 @@ const {data: roomData} = await useFetch<IRoom[]>('/api/rooms',{
     'Authorization': `Bearer ${accessToken}`
   },
   query: filter,
+})
+
+const {data: roomType} = await useFetch<IRoomType[]|null>('/api/room-types',{
+  method: 'GET',
+  baseURL: useRuntimeConfig().public.baseURL,
+  headers: {
+    'Content-Type': 'application/json',
+    // 'Authorization': `Bearer ${accessToken}`
+  },
 })
 
 </script>
