@@ -35,7 +35,7 @@
         </template>
       </a-table>
 
-      <rooms-modal-edit :room="roomSelected" :open="openModalUpdate" :room-type="roomType"/>
+      <rooms-modal-edit :room="roomSelected" :open="openModalUpdate"/>
   </div>
 </template>
 
@@ -44,9 +44,7 @@ import { ref } from 'vue';
 import { useAuthStore } from '#imports';
 import type { IRoom } from '~/interfaces/IRoom';
 import { RoomStatusText, ERoomStatus } from '~/enums/ERoomStatus';
-import type { IRoomType } from '~/interfaces/IRoomType';
 
-const roomSelected = ref<IRoom>();
 const openModalUpdate = ref(true);
 const authStore = useAuthStore();
 const {accessToken} = authStore;
@@ -96,14 +94,8 @@ const {data: roomData} = await useFetch<IRoom[]>('/api/rooms',{
   query: filter,
 })
 
-const {data: roomType} = await useFetch<IRoomType[]|null>('/api/room-types',{
-  method: 'GET',
-  baseURL: useRuntimeConfig().public.baseURL,
-  headers: {
-    'Content-Type': 'application/json',
-    // 'Authorization': `Bearer ${accessToken}`
-  },
-})
+
+const roomSelected = ref<IRoom|null>(roomData?.value?.[0] || null);
 
 </script>
 

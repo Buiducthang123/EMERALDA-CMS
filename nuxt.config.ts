@@ -4,7 +4,8 @@ export default defineNuxtConfig({
     '@ant-design-vue/nuxt',
     '@pinia/nuxt',
     '@nuxtjs/tailwindcss',
-    '@nuxt/image'
+    '@nuxt/image',
+    '@nuxt/icon'
   ],
 
   vite: {
