@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@ant-design-vue/nuxt": "^1.4.2",
+    "@nuxt/icon": "^1.5.1",
     "@nuxt/image": "^1.8.0",
     "@nuxtjs/tailwindcss": "^6.12.1",
     "@pinia/nuxt": "^0.5.4",
