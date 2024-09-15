@@ -49,7 +49,6 @@ import type { IUser } from '~/interfaces/IUser';
     },
     {
       title: 'Email',
-      className: '',
       dataIndex: 'email',
       align: 'center',
       key: 'email',
@@ -91,6 +90,7 @@ import type { IUser } from '~/interfaces/IUser';
       role: EUserRole.GUEST,
     },
     method: 'GET',
+    immediate: true,
   });
   
   if (dataUser) {

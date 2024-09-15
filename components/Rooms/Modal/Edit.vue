@@ -126,8 +126,6 @@ import type { IAmenity } from '~/interfaces/IAmenity';
 import type { IFeature } from '~/interfaces/IFeature';
 import { type UploadChangeParam, type UploadProps } from 'ant-design-vue';
 import { handleUploadImg } from '~/utils/file-upload';
-const authStore = useAuthStore();
-const { accessToken } = authStore;
 
 const props = defineProps<{
   room: IRoom | undefined;
@@ -198,6 +196,9 @@ const { data: amenities } = await useFetch<IAmenity[]>('/api/amenities', {
     'Content-Type': 'application/json'
   },
 });
+
+const auth = useAuthStore();
+const { accessToken } = auth;
 
 const { data: features } = await useFetch<IFeature[]>('/api/features', {
   method: 'GET',
