@@ -13,9 +13,8 @@
         <div class="flex flex-1">
             <!-- Sidebar -->
             <a-menu v-model:openKeys="state.openKeys" v-model:selectedKeys="state.selectedKeys" mode="inline"
-                theme="dark" :inline-collapsed="state.collapsed" :items="items" class="w-64"
+                theme="dark" :inline-collapsed="state.collapsed" :items="items" class="w-64 p-4"
                 ></a-menu>
-
 
             <!-- Main Content -->
             <main class="flex flex-1">
@@ -66,7 +65,7 @@ const items = reactive([
         label: 'Phòng',
         title: 'room',
         onClick: () => {
-            navigateTo('/admin/rooms');
+            navigateTo('/rooms');
         },
     },
     {
@@ -75,7 +74,7 @@ const items = reactive([
         label: 'Khách hàng',
         title: 'guest',
         onClick: () => {
-           navigateTo('/admin/guest');
+           navigateTo('/guest');
         },
     },
     {

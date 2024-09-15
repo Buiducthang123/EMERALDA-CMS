@@ -4,13 +4,13 @@
     <input type="file" @change="onFileChange" />
     <button @click="uploadImage">Upload</button>
 
-    <NuxtImg src="https://i.ibb.co/87v429x/jack-la-ai-doi-thu-cua-son-tung-m-tp-nghi-an-ban-sao-ngo-diec-pham-1628386961-3.jpg"/>
+    <Ckeditor v-model:value="a"/>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { ref } from 'vue';
-
+const a = ref('')
 const selectedFile = ref<File | null>(null);
 
 const onFileChange = (event: Event) => {

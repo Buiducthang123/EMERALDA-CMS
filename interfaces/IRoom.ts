@@ -6,13 +6,15 @@ export interface IRoom {
     room_type_id: number;
     main_image: string | null;
     thumbnails: any[] | null;
-    status: string;
+    status: number;
     price: number;
     description: string | null;
     amenities: any[] | null;
-    room_type: IRoomType;
+    features: any[] | null;
+    room_type: IRoomType | any ;
     adults?: number;
     children?: number;
+    area?: number;
     created_at: string;
     updated_at: string;
 }
