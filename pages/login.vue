@@ -65,7 +65,7 @@ const handleSubmit = async (e: Event) => {
       notification.success({
         message: 'Đăng nhập thành công',
       });
-      router.push('/');
+      router.push('/admin');
       return
     }
     if(data.value && data.value.user && data.value.user.role != EUserRole.ADMIN)

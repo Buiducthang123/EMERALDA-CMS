@@ -5,7 +5,8 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     '@nuxtjs/tailwindcss',
     '@nuxt/image',
-    '@nuxt/icon'
+    '@nuxt/icon',
+    "nuxt-lodash",
   ],
 
   vite: {
@@ -13,7 +14,6 @@ export default defineNuxtConfig({
       include: ['ant-design-vue/es'],
     },
   },
-
   // Các cấu hình khác...
   runtimeConfig: {
     public: {

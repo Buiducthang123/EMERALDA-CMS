@@ -54,7 +54,8 @@ export const useAuthStore = defineStore('auth', () => {
             console.log('User info:', user.value);
             return
           }
-          notification.error({message: 'Unauthorized', description: 'You are not authorized to access this page'})
+          notification.error({message: 'Unauthorized', description: 'Bạn không có quyền truy cập trang này'})
+          useRouter().push('/login')
           
         } else {
           user.value = undefined
