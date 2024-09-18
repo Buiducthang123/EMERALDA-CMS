@@ -3,7 +3,7 @@ import type { EUserRole } from '~/enums/EUserRole';
 
 
 export interface IUser {
-    id: number;
+    id?: number;
     name: string;
     phone_number: string;
     email: string;
@@ -13,7 +13,7 @@ export interface IUser {
     status: EAccountStatus;
     birthday?: string | null;
     email_verified_at?: Date | null;
-    password: string;
+    password?: string;
     rememberToken?: string | null;
     created_at?: Date;
     updated_at?: Date;
