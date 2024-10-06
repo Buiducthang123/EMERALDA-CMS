@@ -3,16 +3,10 @@
     <a-card class="w-full max-w-md">
       <h2 class="text-center text-2xl mb-4">Login</h2>
       <a-form @finish="handleSubmit" :model="form">
-        <a-form-item name="username" :rules="[
-          { required: true, message: 'Vui lòng nhập tên đăng nhập' },
-          { type: 'email', message: 'Vui lòng nhập email hợp lệ!' },
-        ]">
+        <a-form-item name="username" :rules="usernameRules">
           <a-input v-model:value="form.username" placeholder="Tên đăng nhập" prefix-icon="user" />
         </a-form-item>
-        <a-form-item name="password" :rules="[
-          { required: true, message: 'Vui lòng nhập mật khẩu' },
-          { min: 6, message: 'Mật khẩu phải có ít nhất 6 ký tự!' },
-        ]">
+        <a-form-item name="password" :rules="passwordRules">
           <a-input-password v-model:value="form.password" placeholder="Mật khẩu" prefix-icon="lock" />
         </a-form-item>
         <a-form-item>
@@ -42,7 +36,17 @@ const form = reactive({
   password: '',
 });
 
-const handleSubmit = async (e: Event) => {
+const usernameRules = [
+  { required: true, message: 'Vui lòng nhập tên đăng nhập' },
+  { type: 'email', message: 'Vui lòng nhập email hợp lệ!' },
+];
+
+const passwordRules = [
+  { required: true, message: 'Vui lòng nhập mật khẩu' },
+  { min: 6, message: 'Mật khẩu phải có ít nhất 6 ký tự!' },
+];
+
+const handleSubmit = async () => {
   try {
     const { data } = await useFetch<{ token: string, user: IUser }>('/api/login', {
       baseURL: config.public.baseURL,
@@ -55,30 +59,32 @@ const handleSubmit = async (e: Event) => {
         email: form.username,
         password: form.password,
       },
-      credentials:'include'
+      credentials: 'include',
+      onResponse: ({ response }) => {
+        if (response.status === 200) {
+          console.log(response._data);
+          
+          if (response._data.user.role === EUserRole.ADMIN) {
+            setUserInfo(response._data.user);
+            setAccessToken(response._data.token);
+            notification.success({
+              message: 'Đăng nhập thành công',
+            });
+            router.push('/');
+          } else {
+            throw new Error('Bạn không có quyền truy cập');
+          }
+        } else if (response.status === 404) {
+          throw new Error('Không tìm thấy trang');
+        }
+      }
     });
-
-    if (data.value && data.value.user && data.value.token && data.value.user.role == EUserRole.ADMIN) {
-      setUserInfo(data.value.user);
-      setAccessToken(data.value.token);
-      console.log('Login successful:', data.value);
-      notification.success({
-        message: 'Đăng nhập thành công',
-      });
-      router.push('/admin');
-      return
-    }
-    if(data.value && data.value.user && data.value.user.role != EUserRole.ADMIN)
+  } catch (err: any) {
     notification.error({
-      message: 'Bạn không có quyền truy cập',
-    });
-    return;
-  } catch (err) {
-    notification.error({
-      message: 'Có lỗi xảy ra',
+      message: err.message || 'Có lỗi xảy ra',
     });
   }
 };
 </script>
 
-<style></style>
+<style scoped></style>

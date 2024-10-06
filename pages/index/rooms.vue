@@ -104,11 +104,6 @@ const columns = ref([
     dataIndex: 'status',
     key: 'status',
   },
-  {
-    title: 'Giá',
-    dataIndex: 'price',
-    key: 'price',
-  },
   { 
     title: 'Hành Động', 
     key: 'actions',
