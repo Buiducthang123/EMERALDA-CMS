@@ -42,6 +42,7 @@ import {
     StarOutlined,
     SettingOutlined,
     ToolOutlined,
+    ApartmentOutlined, // Importing the ApartmentOutlined icon
 } from '@ant-design/icons-vue';
 import type { MenuProps } from 'ant-design-vue';
 
@@ -72,6 +73,15 @@ const items = reactive([
         title: 'guest',
         onClick() {
             router.push('/guest');
+        },
+    },
+    {
+        key: '/room_type',
+        icon: () => h(ApartmentOutlined), 
+        label: 'Loại phòng',
+        title: 'room_type',
+        onClick() {
+            router.push('/room_type');
         },
     },
     {
