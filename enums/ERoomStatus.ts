@@ -1,11 +1,9 @@
 export enum ERoomStatus {
     AVAILABLE = 1,
-    BOOKED = 2,
-    MAINTENANCE = 3
+    MAINTENANCE = 2
 }
 
 export const RoomStatusText: Record<ERoomStatus|string, string> = {
-    [ERoomStatus.AVAILABLE]: "Có sẵn",
-    [ERoomStatus.BOOKED]: "Đã đặt",
+    [ERoomStatus.AVAILABLE]: "Bình thường",
     [ERoomStatus.MAINTENANCE]: "Bảo trì"
 }

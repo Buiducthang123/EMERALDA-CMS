@@ -7,9 +7,9 @@ export interface IRoomType {
     max_people: number;
     area: number;
     price: number;
+    intro_description: string;
     description?: string ;
     amenities: any[] | null;
-    features: any[] | null;
     total_rooms: number;
     created_at: string;
     updated_at: string;

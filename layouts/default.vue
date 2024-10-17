@@ -4,9 +4,9 @@
         <header class="bg-gray-900 text-white p-4 flex justify-between items-center">
             <div class="text-lg">Hotel Management Dashboard</div>
             <div class="flex items-center">
-                <span class="mr-2">Admin</span>
+                <span class="mr-2">{{ user?.name }}</span>
                 <div class="w-8 h-8 rounded-full overflow-hidden">
-                    <NuxtImg src="https://placehold.co/600x400" class="w-full h-full object-cover" />
+                    <NuxtImg :src="user?.avatar || 'https://placehold.co/600x400'" class="w-full h-full object-cover" />
                 </div>
             </div>
         </header>
@@ -45,6 +45,7 @@ import {
     ApartmentOutlined, // Importing the ApartmentOutlined icon
 } from '@ant-design/icons-vue';
 import type { MenuProps } from 'ant-design-vue';
+import type { IUser } from '~/interfaces/IUser';
 
 const route = useRoute();
 const router = useRouter();
@@ -54,6 +55,11 @@ const state = reactive({
     selectedKeys: [route.path],
     openKeys: [],
 });
+
+const authStore = useAuthStore();
+const { setUserInfo, setAccessToken } = authStore;
+
+const user = computed(()=>authStore.user);
 
 const items = reactive([
     {
@@ -105,16 +111,16 @@ const items = reactive([
                 label: 'Phòng mới đặt',
                 title: 'new-booking',
                 onClick() {
-                    router.push('/booking/new');
+                    router.push('/bookings');
                 },
             },
             {
-                key: '/booking/confirm-payment',
+                key: '/booking/payment',
                 icon: () => h(CheckCircleOutlined),
                 label: 'Xác nhận thanh toán',
                 title: 'confirm-payment',
                 onClick() {
-                    router.push('/booking/confirm-payment');
+                    router.push('/bookings/payment');
                 },
             },
             {
@@ -123,7 +129,7 @@ const items = reactive([
                 label: 'Hồ sơ đặt phòng',
                 title: 'booking-profile',
                 onClick() {
-                    router.push('/booking/profile');
+                    router.push('/bookings/profile');
                 },
             },
         ],
@@ -191,8 +197,31 @@ watch(
     }
 );
 
-const handleClick: MenuProps['onClick'] = (e) => {
+const handleClick: MenuProps['onClick'] = (e:any) => {
     console.log('click', e);
     router.push(e.key);
 };
+
+onMounted(async () => {
+  const token = useCookie('access_token').value;
+  if (token) {
+    try {
+      const user = await $fetch<IUser>('/api/user/info', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        baseURL: useRuntimeConfig().public.baseURL,
+      });
+
+      if (user) {
+        setUserInfo(user);
+        setAccessToken(token);
+      }
+    } catch (err) {
+      console.error('Fetch Error:', err); 
+      setAccessToken('');
+      router.push('/login')
+    }
+  }
+});
 </script>

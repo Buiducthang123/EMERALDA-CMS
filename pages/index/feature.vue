@@ -41,14 +41,6 @@
                 </div>
             </template>
         </a-table>
-
-        <!-- Edit Modal -->
-        <FeaturesModalEdit :visible="isModalVisible" :feature="selectedFeature" @update:visible="isModalVisible = $event" @submit="handleSubmit" @refresh-feature="refreshFeature" />
-
-        <!-- Delete Modal -->
-        <FeaturesModalDelete :visible="isDeleteModalVisible" :feature="selectedFeature" @update:visible="isDeleteModalVisible = $event" @refresh-feature="refreshFeature" />
-
-        <FeaturesModalCreate :visible="isModalVisible" @update:visible="isModalVisible = $event" @refresh-feature="refreshFeature" />
     </div>
 </template>
 
@@ -72,17 +64,8 @@ const columns = [
     },
 ];
 
-const { data: featureData, refresh: refreshFeature } = await useFetch<IFeature[]>('/api/features', {
-    method: 'GET',
-    baseURL: useRuntimeConfig().public.baseURL,
-    headers: {
-        'Content-Type': 'application/json'
-    },
-});
-
 const isModalVisible = ref(false);
 const isDeleteModalVisible = ref(false);
-const selectedFeature = ref<IFeature>();
 
 const pagination = ref({
     current: 1,

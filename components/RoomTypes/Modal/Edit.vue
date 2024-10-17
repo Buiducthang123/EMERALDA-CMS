@@ -9,6 +9,9 @@
                 <a-form-item label="Slug" name="slug">
                     <a-input v-model:value="form.slug" placeholder="Nhập slug" />
                 </a-form-item>
+                <a-form-item label="Mô tả ngắn" name="intro_description">
+                    <a-input v-model:value="form.intro_description" placeholder="Nhập mô tả ngắn" />
+                </a-form-item>
                 <a-form-item label="Mô tả" name="description">
                     <CkEditor v-if="props.open" v-model:value="form.description"/>
                 </a-form-item>
@@ -24,13 +27,6 @@
                         <span> m<sup>2</sup></span>
                     </a-form-item>
                 </div>
-                <a-form-item label="Đặc tính" name="features">
-                    <a-checkbox-group v-model:value="form.features">
-                        <a-checkbox v-for="(feature, index) in features" :key="index" :value="feature.id">{{
-                            feature.name
-                            }}</a-checkbox>
-                    </a-checkbox-group>
-                </a-form-item>
                 <a-form-item label="Tiện nghi" name="amenities">
                     <a-checkbox-group v-model:value="form.amenities">
                         <a-checkbox v-for="(amenity, index) in amenities" :key="index" :value="amenity.id">{{
@@ -75,8 +71,8 @@ interface RoomTypeForm {
     slug: string;
     description: string;
     price: number;
+    intro_description: string;
     max_people: number;
-    features: string[];
     amenities: string[];
     area: number;
     thumbnails: string[];
@@ -98,9 +94,9 @@ const form = reactive<RoomTypeForm>({
     main_image: 'https://placehold.co/300x180',
     slug: '',
     description: '',
+    intro_description: '',
     price: 0,
     max_people: 3,
-    features: [],
     amenities: [],
     area: 0,
     thumbnails: [],
@@ -112,6 +108,7 @@ const rules: Record<string, Rule[]> = {
         { required: true, message: 'Vui lòng nhập slug', trigger: 'blur' },
         { pattern: /^[a-zA-Z0-9-]+$/, message: 'Slug chỉ được chứa chữ cái, số và dấu -', trigger: 'blur' }
     ],
+    intro_description: [{ required: true, message: 'Vui lòng nhập mô tả ngắn', trigger: 'blur' }],
     description: [{ required: true, message: 'Vui lòng nhập mô tả', trigger: 'blur' }],
     price: [
         { required: true, message: 'Vui lòng nhập giá', trigger: 'blur' },
@@ -128,14 +125,6 @@ watch(() => props.open, (newVal) => {
     if (newVal && props.roomType) {
         Object.assign(form, props.roomType);
     }
-});
-
-const { data: features } = await useFetch<IFeature[]>('/api/features', {
-    method: 'GET',
-    baseURL: useRuntimeConfig().public.baseURL,
-    headers: {
-        'Content-Type': 'application/json',
-    },
 });
 
 const { data: amenities } = await useFetch<IAmenity[]>('/api/amenities', {
