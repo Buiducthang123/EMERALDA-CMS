@@ -25,6 +25,8 @@ import { useRouter } from 'vue-router';
 import { useFetch, useRuntimeConfig } from '#app';
 import type { IUser } from '~/interfaces/IUser';
 import { EUserRole } from '~/enums/EUserRole';
+import { useAuthStore } from '~/stores/auth'; // Ensure this import is correct
+import { notification } from 'ant-design-vue'; // Ensure this import is correct
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -36,9 +38,9 @@ const form = reactive({
   password: '',
 });
 
-const usernameRules = [
+const usernameRules:any = [
   { required: true, message: 'Vui lòng nhập tên đăng nhập' },
-  { type: 'email', message: 'Vui lòng nhập email hợp lệ!' },
+  { type: 'email', message: 'Vui lòng nhập email hợp lệ!' }, // Adjust if username is not an email
 ];
 
 const passwordRules = [
@@ -48,7 +50,7 @@ const passwordRules = [
 
 const handleSubmit = async () => {
   try {
-    const { data } = await useFetch<{ token: string, user: IUser }>('/api/login', {
+    await $fetch<{ token: string, user: IUser }>('/api/login', {
       baseURL: config.public.baseURL,
       headers: {
         'Content-Type': 'application/json',
@@ -59,23 +61,20 @@ const handleSubmit = async () => {
         email: form.username,
         password: form.password,
       },
-      credentials: 'include',
-      onResponse: ({ response }) => {
-        if (response.status === 200) {
-          console.log(response._data);
-          
-          if (response._data.user.role === EUserRole.ADMIN) {
-            setUserInfo(response._data.user);
-            setAccessToken(response._data.token);
-            notification.success({
-              message: 'Đăng nhập thành công',
-            });
-            router.push('/');
-          } else {
-            throw new Error('Bạn không có quyền truy cập');
+      onResponse:({response})=>{
+        if(response.ok){
+          if(response._data.user.role==EUserRole.ADMIN){
+            setUserInfo(response._data.user)
+            setAccessToken(response._data.token)
+            message.success('Đăng nhập thành công');  
+            router.push('/')
           }
-        } else if (response.status === 404) {
-          throw new Error('Không tìm thấy trang');
+          else{
+            message.error('Bạn không có quyền truy cập')
+          }
+        }
+        else{
+          message.error('Có lỗi xảy ra')
         }
       }
     });

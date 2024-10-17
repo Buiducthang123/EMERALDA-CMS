@@ -7,11 +7,14 @@
 </template>
 
 <script setup lang="ts">
-definePageMeta({
-  middleware: ["auth"]
-})
+import type { IUser } from '~/interfaces/IUser';
+
+// definePageMeta({
+//   middleware: ["auth"]
+// })
 const authStore = useAuthStore();
-const { user } = authStore;
+const { setUserInfo, setAccessToken } = authStore;
+
 </script>
 
 <style scoped>

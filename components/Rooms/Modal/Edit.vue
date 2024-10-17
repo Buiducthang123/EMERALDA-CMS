@@ -28,7 +28,6 @@
               <a-select-option :value="undefined">Chọn trạng thái</a-select-option>
               <a-select-option :value="ERoomStatus.AVAILABLE">{{ RoomStatusText[ERoomStatus.AVAILABLE]
                 }}</a-select-option>
-              <a-select-option :value="ERoomStatus.BOOKED">{{ RoomStatusText[ERoomStatus.BOOKED] }}</a-select-option>
               <a-select-option :value="ERoomStatus.MAINTENANCE">{{ RoomStatusText[ERoomStatus.MAINTENANCE]
                 }}</a-select-option>
             </a-select>

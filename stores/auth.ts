@@ -10,7 +10,7 @@ export const useAuthStore = defineStore('auth', () => {
     
     const user = ref<IUser | undefined | null>()
 
-    const isLogin = computed(() => (user.value && accessToken.value ))
+    const isLogin = computed(() => (user.value))
 
     const isAdmin = computed(() => (user.value && user.value.role === EUserRole.ADMIN ))
 

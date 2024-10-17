@@ -7,6 +7,7 @@ export default defineNuxtConfig({
     '@nuxt/image',
     '@nuxt/icon',
     "nuxt-lodash",
+    'dayjs-nuxt'
   ],
 
   vite: {

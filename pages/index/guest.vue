@@ -64,7 +64,7 @@ import type { IUser } from '~/interfaces/IUser';
 const userSelected = ref<IUser>();
 const openModalUserDetails = ref(false);
 const openModalBlockUser = ref(false);
-const columns = [
+const columns:any = [
   {
     title: 'Tên khách hàng',
     dataIndex: 'name',

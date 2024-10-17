@@ -54,7 +54,7 @@
         <RoomTypesModalEdit v-show="openModalUpdate" :room-type="roomTypeSelected || undefined" :open="openModalUpdate"
             @handle-cancel="openModalUpdate = false" @refresh-room-type="refreshRoomType" />
 
-        <RoomTypesModalCreate :open="openModalCreate" @handle-cancel="openModalCreate = false"
+        <RoomTypesModalCreate v-if="openModalCreate" :open="openModalCreate" @handle-cancel="openModalCreate = false"
             @refresh-room-type="refreshRoomType" />
 
         <room-type-modal-delete :room-type="roomTypeSelected" :open="openModalDelete"
