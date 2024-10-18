@@ -13,7 +13,7 @@
         class="filter-select"
         allowClear
       >
-        <a-select-option v-for="(label, value) in BookingStatusLabel" :key="value" :value="value">
+        <a-select-option v-for="(label, value) in EBookingStatusText" :key="value" :value="value">
           {{ label }}
         </a-select-option>
       </a-select>
@@ -46,7 +46,7 @@
         </template>
         <template v-if="column.key === 'status'">
           <a-tag :color="getStatusColor(record.status)">
-            {{ BookingStatusLabel[record.status as keyof typeof BookingStatusLabel] }}  
+            {{ EBookingStatusText[record.status as keyof typeof EBookingStatusText] }}  
           </a-tag>
         </template>
       </template>
@@ -61,7 +61,7 @@
             <p><strong>Ngày trả phòng:</strong> {{ dayjs(record.check_out_date).format('DD/MM/YYYY') }}</p>
             <p><strong>Thành tiền:</strong> {{ formatPrice(record.total_price) }}</p>
             <p><strong>Số tiền đã thanh toán:</strong> {{ formatPrice(record.paid_amount) }}</p>
-            <p><strong>Trạng thái:</strong> {{ BookingStatusLabel[record.status as keyof typeof BookingStatusLabel] }}</p>
+            <p><strong>Trạng thái:</strong> {{ EBookingStatusText[record.status as keyof typeof EBookingStatusText] }}</p>
             <p><strong>Mô tả phòng:</strong> {{ record.room.description }}</p>
           </div>
           <div class="expanded-row-section">
@@ -88,7 +88,7 @@ import { useAuthStore } from '~/stores/auth';
 import { useFetch, useRuntimeConfig } from '#app';
 import type { IBooking } from '~/interfaces/IBooking';
 import dayjs from '#build/dayjs.imports.mjs';
-import { BookingStatusLabel } from '~/enums/EBookingStatus';
+import { EBookingStatusText } from '~/enums/EBookingStatus';
 
 const authStore = useAuthStore();
 const { setUserInfo, setAccessToken } = authStore;

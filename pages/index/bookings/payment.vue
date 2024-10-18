@@ -16,6 +16,10 @@
             {{ EPaymentStatusLabel[record.order.status as EPaymentStatus] }}
           </a-tag>
         </template>
+        <template v-if="column.key === 'options'">
+          <a-button type="primary" class="mr-6">Xác nhận thanh toán</a-button>
+          <a-button danger>Hủy</a-button>
+        </template>
       </template>
       <template #expandedRowRender="{ record }">
         <div class="expanded-row">
@@ -52,6 +56,7 @@ import { useFetch, useRuntimeConfig } from '#app';
 import type { IPayment } from '~/interfaces/IPayment';
 import dayjs from '#build/dayjs.imports.mjs';
 import { EPaymentStatus, EPaymentStatusLabel } from '~/enums/EPaymentStatus';
+import { EBookingStatus } from '~/enums/EBookingStatus';
 
 const authStore = useAuthStore();
 const { setUserInfo, setAccessToken } = authStore;
@@ -107,9 +112,9 @@ const columns = [
     key: 'payment_date'
   },
   {
-    title: 'Ngày tạo',
-    dataIndex: 'created_at',
-    key: 'created_at'
+    title: 'Hành động',
+    dataIndex: 'options',
+    key: 'options'
   },
 ];
 
@@ -128,6 +133,23 @@ const getStatusColor = (status: EPaymentStatus) => {
     default:
       return 'default';
   }
+};
+
+const handleUpdateStatus = async (id:number) => {
+  await $fetch('api/bookings/update-status/'+id, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${access_token.value}`
+    },
+    body: {
+      status: EBookingStatus.WAITING_CHECK_IN
+    },
+    onResponse: ({response}) => {
+      if (response.status === 200) {
+        console.log('Update status successfully');
+      }
+    }
+  });
 };
 
 </script>

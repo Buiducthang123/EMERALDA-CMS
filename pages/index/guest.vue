@@ -5,7 +5,7 @@
         <template v-if="column.dataIndex === 'name'">
           <div class="flex flex-col items-center gap-2">
 
-            <NuxtImg v-if="record.avatar" :src="record.avatar" class="w-10" />
+            <NuxtImg loading="lazy" v-if="record.avatar" :src="record.avatar" class="w-10" />
             <NuxtImg v-else src="https://placehold.co/32x32" class="w-10" />
             <b>{{ record.name }}</b>
           </div>

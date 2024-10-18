@@ -1,5 +1,5 @@
 <template>
- <!-- <NuxtLoadingIndicator/>-->
+ <NuxtLoadingIndicator/>
   <NuxtPage/>
 </template>
 <script lang="ts" setup>
