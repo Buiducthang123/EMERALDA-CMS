@@ -3,12 +3,27 @@
         <!-- Header -->
         <header class="bg-gray-900 text-white p-4 flex justify-between items-center">
             <div class="text-lg">Hotel Management Dashboard</div>
-            <div class="flex items-center">
-                <span class="mr-2">{{ user?.name }}</span>
-                <div class="w-8 h-8 rounded-full overflow-hidden">
-                    <NuxtImg :src="user?.avatar || 'https://placehold.co/600x400'" class="w-full h-full object-cover" />
+            <a-dropdown v-if="user" class="ml-4">
+                <template #overlay>
+                    <a-menu>
+                        <a-menu-item key="setting" @click="handleMenuClick('setting')">
+                            <SettingOutlined /> Thiết lập
+                        </a-menu-item>
+                        <a-menu-item key="logout" @click="handleMenuClick('logout')">
+                            <LogoutOutlined /> Đăng xuất
+                        </a-menu-item>
+                    </a-menu>
+                </template>
+                <div class="flex items-center">
+                    <span class="mr-2">{{ user?.name }}</span>
+                    <div class="w-8 h-8 rounded-full overflow-hidden">
+                        <NuxtImg :src="user?.avatar || 'https://placehold.co/600x400'"
+                            class="w-full h-full object-cover" />
+                    </div>
+
                 </div>
-            </div>
+            </a-dropdown>
+
         </header>
         <div class="flex flex-1">
             <!-- Sidebar -->
@@ -28,7 +43,7 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, watch, h } from 'vue';
+import { reactive, watch, h, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import {
     PieChartOutlined,
@@ -42,10 +57,16 @@ import {
     StarOutlined,
     SettingOutlined,
     ToolOutlined,
-    ApartmentOutlined, // Importing the ApartmentOutlined icon
+    ApartmentOutlined,
+    LogoutOutlined, // Importing the LogoutOutlined icon
 } from '@ant-design/icons-vue';
 import type { MenuProps } from 'ant-design-vue';
 import type { IUser } from '~/interfaces/IUser';
+import { useAuthStore } from '~/stores/auth';
+import { useCookie } from '#app';
+import { useFetch } from '#app';
+import { useRuntimeConfig } from '#app';
+import { notification } from 'ant-design-vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -57,9 +78,9 @@ const state = reactive({
 });
 
 const authStore = useAuthStore();
-const { setUserInfo, setAccessToken } = authStore;
+const { setUserInfo, setAccessToken, logout } = authStore;
 
-const user = computed(()=>authStore.user);
+const user = computed(() => authStore.user);
 
 const items = reactive([
     {
@@ -83,7 +104,7 @@ const items = reactive([
     },
     {
         key: '/room_type',
-        icon: () => h(ApartmentOutlined), 
+        icon: () => h(ApartmentOutlined),
         label: 'Loại phòng',
         title: 'room_type',
         onClick() {
@@ -197,31 +218,44 @@ watch(
     }
 );
 
-const handleClick: MenuProps['onClick'] = (e:any) => {
+const handleClick: MenuProps['onClick'] = (e: any) => {
     console.log('click', e);
     router.push(e.key);
 };
 
-onMounted(async () => {
-  const token = useCookie('access_token').value;
-  if (token) {
-    try {
-      const user = await $fetch<IUser>('/api/user/info', {
-        headers: {
-          Authorization: `Bearer ${token}`
-        },
-        baseURL: useRuntimeConfig().public.baseURL,
-      });
-
-      if (user) {
-        setUserInfo(user);
-        setAccessToken(token);
-      }
-    } catch (err) {
-      console.error('Fetch Error:', err); 
-      setAccessToken('');
-      router.push('/login')
+const handleMenuClick = (key: string) => {
+    if (key === 'setting') {
+        router.push('/setting');
+    } else if (key === 'logout') {
+        logout();
+        router.push('/login');
     }
-  }
+};
+
+onMounted(async () => {
+    const token = useCookie('access_token').value;
+    if (token) {
+        try {
+            const user = await $fetch<IUser>('/api/user/info', {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                },
+                baseURL: useRuntimeConfig().public.baseURL,
+            });
+
+            if (user) {
+                setUserInfo(user);
+                setAccessToken(token);
+            }
+            else {
+                setAccessToken('');
+                router.push('/login');
+            }
+        } catch (err) {
+            console.error('Fetch Error:', err);
+            setAccessToken('');
+            router.push('/login');
+        }
+    }
 });
 </script>
