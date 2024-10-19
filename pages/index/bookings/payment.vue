@@ -1,5 +1,36 @@
 <template>
   <div class="payment-table-container">
+    <h6 class="mb-8 text-xl font-semibold">Danh sách thanh toán</h6>
+    <div class="filters">
+      <a-select
+        v-model:value="filters.status"
+        class="filter-select"
+        allowClear
+      >
+        <a-select-option :value="undefined">Tất cả trạng thái</a-select-option>
+        <a-select-option :value="EPaymentStatus.UNPAID">{{ EPaymentStatusLabel[EPaymentStatus.UNPAID] }}</a-select-option>
+        <a-select-option :value="EPaymentStatus.PAID">{{ EPaymentStatusLabel[EPaymentStatus.PAID] }}</a-select-option>
+        <a-select-option :value="EPaymentStatus.DEPOSIT">{{ EPaymentStatusLabel[EPaymentStatus.DEPOSIT] }}</a-select-option>
+        <a-select-option :value="EPaymentStatus.CANCELLED">{{ EPaymentStatusLabel[EPaymentStatus.CANCELLED] }}</a-select-option>
+
+      </a-select>
+      <a-input
+        v-model:value="filters.transaction_id"
+        placeholder="Lọc theo mã giao dịch"
+        class="filter-input"
+      />
+      <a-input
+        v-model:value="filters.user_id"
+        placeholder="Lọc theo mã người dùng"
+        class="filter-input"
+      />
+      <a-input
+        v-model:value="filters.order_id"
+        placeholder="Lọc theo mã đơn đặt phòng"
+        class="filter-input"
+      />
+      <a-button type="primary" @click="fetchPayments">Tìm kiếm</a-button>
+    </div>
     <a-table :columns="columns" :dataSource="paymentData || []" rowKey="id" class="payment-table">
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'amount'">
@@ -13,12 +44,8 @@
         </template>
         <template v-if="column.key === 'status'">
           <a-tag :color="getStatusColor(record.status)">
-            {{ EPaymentStatusLabel[record.order.status as EPaymentStatus] }}
+            {{ EPaymentStatusLabel[record.status as EPaymentStatus] }}
           </a-tag>
-        </template>
-        <template v-if="column.key === 'options'">
-          <a-button type="primary" class="mr-6">Xác nhận thanh toán</a-button>
-          <a-button danger>Hủy</a-button>
         </template>
       </template>
       <template #expandedRowRender="{ record }">
@@ -50,30 +77,55 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useAuthStore } from '~/stores/auth';
 import { useFetch, useRuntimeConfig } from '#app';
 import type { IPayment } from '~/interfaces/IPayment';
 import dayjs from '#build/dayjs.imports.mjs';
 import { EPaymentStatus, EPaymentStatusLabel } from '~/enums/EPaymentStatus';
-import { EBookingStatus } from '~/enums/EBookingStatus';
+import { notification } from 'ant-design-vue';
 
 const authStore = useAuthStore();
 const { setUserInfo, setAccessToken } = authStore;
 
 const access_token = computed(() => authStore.accessToken);
 
-const { data: paymentData } = await useFetch<IPayment[]>('api/payment', {
-  method: 'GET',
-  baseURL: useRuntimeConfig().public.baseURL,
-  headers: {
-    Authorization: `Bearer ${access_token.value}`
-  },
-  query: {
-    'p[]': ['user', 'order'],
-    'latest': true
-  }
+const filters = ref({
+  status: undefined,
+  transaction_id: '',
+  user_id: '',
+  order_id: ''
 });
+
+const paymentData = ref<IPayment[]>([]);
+
+const fetchPayments = async () => {
+  try {
+    const { data } = await useFetch<IPayment[]>('api/payment', {
+      method: 'GET',
+      baseURL: useRuntimeConfig().public.baseURL,
+      headers: {
+        Authorization: `Bearer ${access_token.value}`
+      },
+      query: {
+        'p[]': ['user', 'order'],
+        'filter[status]': filters.value.status,
+        'filter[transaction_id]': filters.value.transaction_id,
+        'filter[user_id]': filters.value.user_id,
+        'filter[order_id]': filters.value.order_id,
+        'latest': true
+      }
+    });
+    paymentData.value = data.value || [];
+  } catch (error:any) {
+    notification.error({
+      message: 'Lỗi khi tải dữ liệu',
+      description: error.message,
+    });
+  }
+};
+
+onMounted(fetchPayments);
 
 const columns = [
   {
@@ -110,12 +162,7 @@ const columns = [
     title: 'Ngày thanh toán',
     dataIndex: 'payment_date',
     key: 'payment_date'
-  },
-  {
-    title: 'Hành động',
-    dataIndex: 'options',
-    key: 'options'
-  },
+  }
 ];
 
 const formatPrice = (price: number) => {
@@ -124,9 +171,9 @@ const formatPrice = (price: number) => {
 
 const getStatusColor = (status: EPaymentStatus) => {
   switch (status) {
-    case EPaymentStatus.DEPOSIT:
-      return 'orange';
     case EPaymentStatus.PAID:
+      return 'blue';
+    case EPaymentStatus.DEPOSIT:
       return 'green';
     case EPaymentStatus.CANCELLED:
       return 'red';
@@ -134,30 +181,26 @@ const getStatusColor = (status: EPaymentStatus) => {
       return 'default';
   }
 };
-
-const handleUpdateStatus = async (id:number) => {
-  await $fetch('api/bookings/update-status/'+id, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${access_token.value}`
-    },
-    body: {
-      status: EBookingStatus.WAITING_CHECK_IN
-    },
-    onResponse: ({response}) => {
-      if (response.status === 200) {
-        console.log('Update status successfully');
-      }
-    }
-  });
-};
-
 </script>
 
 <style scoped>
 .payment-table-container {
   padding: 20px;
   background-color: #f9f9f9;
+}
+
+.filters {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.filter-input {
+  flex: 1;
+}
+
+.filter-select {
+  width: 200px;
 }
 
 .payment-table {
