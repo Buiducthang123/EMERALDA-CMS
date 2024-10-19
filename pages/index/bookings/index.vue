@@ -1,5 +1,5 @@
 <template>
-  <div class="booking-table-container ">
+  <div class="booking-table-container">
     <h6 class="mb-8 text-xl font-semibold">Danh sách đặt phòng</h6>
     <div class="filters">
       <a-input
@@ -27,7 +27,14 @@
         <a-select-option value="today">Có thể nhận phòng hôm nay</a-select-option>
       </a-select>
     </div>
-    <a-table :columns="columns" :dataSource="filteredBookings" rowKey="id" class="booking-table">
+    <a-table
+      :columns="columns"
+      :dataSource="filteredBookings"
+      :expandedRowKeys="expandedRowKeys"
+      @expand="onExpand"
+      rowKey="id"
+      class="booking-table"
+    >
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'room'">
           {{ record.room.room_number }}
@@ -46,8 +53,11 @@
         </template>
         <template v-if="column.key === 'status'">
           <a-tag :color="getStatusColor(record.status)">
-            {{ EBookingStatusText[record.status as keyof typeof EBookingStatusText] }}  
+            {{ EBookingStatusText[record.status as keyof typeof EBookingStatusText] }}
           </a-tag>
+        </template>
+        <template v-if="column.key === 'action'">
+          <a-button @click="toggleExpand(record as IBooking)">Cài đặt</a-button>
         </template>
       </template>
       <template #expandedRowRender="{ record }">
@@ -59,8 +69,10 @@
             <p><strong>Số phòng:</strong> {{ record.room.room_number }}</p>
             <p><strong>Ngày nhận phòng:</strong> {{ dayjs(record.check_in_date).format('DD/MM/YYYY') }}</p>
             <p><strong>Ngày trả phòng:</strong> {{ dayjs(record.check_out_date).format('DD/MM/YYYY') }}</p>
-            <p><strong>Thành tiền:</strong> {{ formatPrice(record.total_price) }}</p>
-            <p><strong>Số tiền đã thanh toán:</strong> {{ formatPrice(record.paid_amount) }}</p>
+            <p><strong>Thành tiền:</strong> <span class="font-medium text-green-500">{{ formatPrice(record.total_price) }}</span></p>
+            <p><strong>Số tiền đã thanh toán: </strong><span class="font-medium text-green-500">
+              {{ formatPrice(record.paid_amount) }}
+            </span></p>
             <p><strong>Trạng thái:</strong> {{ EBookingStatusText[record.status as keyof typeof EBookingStatusText] }}</p>
             <p><strong>Mô tả phòng:</strong> {{ record.room.description }}</p>
           </div>
@@ -76,9 +88,28 @@
             <p><strong>Số điện thoại liên hệ:</strong> {{ record.order.customer_info.phone_number }}</p>
             <p><strong>Ngày sinh:</strong> {{ dayjs(record.order.customer_info.birthday).format('DD/MM/YYYY') }}</p>
           </div>
+          <div class="expanded-row-section">
+            <h6 class="section-title">Cập nhật trạng thái</h6>
+            <a-select v-model:value="statusSelectUpdate" @change="showConfirmModal(record)" class="w-full">
+              <a-select-option :value="EBookingStatus.PENDING_APPROVAL">Chờ xác nhận</a-select-option>
+              <a-select-option :value="EBookingStatus.WAITING_CHECK_IN">Đã xác nhận</a-select-option>
+              <a-select-option :value="EBookingStatus.CHECKED_IN">Đã nhận phòng</a-select-option>
+              <a-select-option :value="EBookingStatus.CHECKED_OUT">Đã trả phòng</a-select-option>
+              <a-select-option :value="EBookingStatus.CANCELLED">Hủy</a-select-option>
+            </a-select>
+          </div>
         </div>
       </template>
     </a-table>
+
+    <a-modal
+      v-model:open="isModalVisible"
+      title="Xác nhận cập nhật trạng thái"
+      @ok="confirmUpdateStatus"
+      @cancel="cancelUpdateStatus"
+    >
+      <p>Bạn có chắc chắn muốn cập nhật trạng thái không?</p>
+    </a-modal>
   </div>
 </template>
 
@@ -88,14 +119,15 @@ import { useAuthStore } from '~/stores/auth';
 import { useFetch, useRuntimeConfig } from '#app';
 import type { IBooking } from '~/interfaces/IBooking';
 import dayjs from '#build/dayjs.imports.mjs';
-import { EBookingStatusText } from '~/enums/EBookingStatus';
+import { EBookingStatus, EBookingStatusText } from '~/enums/EBookingStatus';
+import { notification, Select } from 'ant-design-vue';
 
 const authStore = useAuthStore();
 const { setUserInfo, setAccessToken } = authStore;
 
 const access_token = computed(() => authStore.accessToken);
 
-const { data: bookings } = await useFetch<IBooking[]>('api/bookings', {
+const { data: bookings, refresh: refreshBookings } = await useFetch<IBooking[]>('api/bookings', {
   method: 'GET',
   baseURL: useRuntimeConfig().public.baseURL,
   headers: {
@@ -110,6 +142,10 @@ const { data: bookings } = await useFetch<IBooking[]>('api/bookings', {
 const searchText = ref('');
 const selectedStatus = ref<number>();
 const checkInFilter = ref<string>('all');
+const expandedRowKeys = ref<number[]>([]);
+const isModalVisible = ref(false);
+const selectedRecord = ref<IBooking | null>(null);
+const statusSelectUpdate = ref<number | string>()
 
 const filteredBookings = computed(() => {
   if (!bookings.value) return [];
@@ -172,6 +208,11 @@ const columns = [
     dataIndex: 'status',
     key: 'status'
   },
+  {
+    title: 'Hành động',
+    key: 'action',
+    dataIndex: 'action'
+  }
 ];
 
 const formatPrice = (price: number) => {
@@ -193,6 +234,63 @@ const getStatusColor = (status: number) => {
     default:
       return 'default';
   }
+};
+
+const toggleExpand = (record: IBooking) => {
+  if (expandedRowKeys.value.includes(record.id)) {
+    expandedRowKeys.value = expandedRowKeys.value.filter(key => key !== record.id);
+  } else {
+    expandedRowKeys.value.push(record.id);
+  }
+  selectedRecord.value = record;
+};
+
+const onExpand = (expanded: boolean, record: IBooking) => {
+  if (expanded) {
+    expandedRowKeys.value.push(record.id);
+  } else {
+    expandedRowKeys.value = expandedRowKeys.value.filter(key => key !== record.id);
+  }
+};
+
+const showConfirmModal = (record: IBooking) => {
+  selectedRecord.value = record;
+  isModalVisible.value = true;
+};
+
+const confirmUpdateStatus = async () => {
+  if (selectedRecord.value) {
+    try {
+      await useFetch(`/api/bookings/update-status/${selectedRecord.value.id}`, {
+        method: 'POST',
+        baseURL: useRuntimeConfig().public.baseURL,
+        headers: {
+          Authorization: `Bearer ${access_token.value}`,
+          'Content-Type': 'application/json',
+        },
+        body: {
+          status: statusSelectUpdate.value,
+        },
+      });
+      notification.success({
+        message: 'Cập nhật trạng thái thành công',
+      });
+      refreshBookings();
+    } catch (error: any) {
+      notification.error({
+        message: 'Cập nhật trạng thái thất bại',
+        description: error.message,
+      });
+    } finally {
+      isModalVisible.value = false;
+      // statusSelectUpdate.value = '';
+    }
+  }
+};
+
+const cancelUpdateStatus = () => {
+  isModalVisible.value = false;
+  statusSelectUpdate.value = selectedRecord.value?.status ?? '';
 };
 </script>
 
@@ -217,7 +315,7 @@ const getStatusColor = (status: number) => {
 }
 
 .booking-table {
-height: 100%;
+  height: 100%;
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);

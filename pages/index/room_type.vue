@@ -51,13 +51,13 @@
                 </div>
             </template>
         </a-table>
-        <RoomTypesModalEdit v-show="openModalUpdate" :room-type="roomTypeSelected || undefined" :open="openModalUpdate"
+        <LazyRoomTypesModalEdit v-if="openModalUpdate" :room-type="roomTypeSelected || undefined" :open="openModalUpdate"
             @handle-cancel="openModalUpdate = false" @refresh-room-type="refreshRoomType" />
 
-        <RoomTypesModalCreate v-if="openModalCreate" :open="openModalCreate" @handle-cancel="openModalCreate = false"
+        <LazyRoomTypesModalCreate v-if="openModalCreate" :open="openModalCreate" @handle-cancel="openModalCreate = false"
             @refresh-room-type="refreshRoomType" />
 
-        <room-type-modal-delete :room-type="roomTypeSelected" :open="openModalDelete"
+        <room-type-modal-delete v-if="openModalDelete" :room-type="roomTypeSelected" :open="openModalDelete"
             @handle-cancel="openModalDelete = false" @refresh-room-type="refreshRoomType" />
     </div>
 </template>

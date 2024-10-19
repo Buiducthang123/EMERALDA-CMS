@@ -9,7 +9,7 @@ enum EPaymentStatus {
 const EPaymentStatusLabel: Record<EPaymentStatus, string> = {
     [EPaymentStatus.UNPAID]: 'Chưa thanh toán',
     [EPaymentStatus.DEPOSIT]: 'Đã đặt cọc',
-    [EPaymentStatus.PAID]: 'Đã thanh toán',
+    [EPaymentStatus.PAID]: 'Đã thanh toán hết',
     [EPaymentStatus.CANCELLED]: 'Đã hủy',
   };
 

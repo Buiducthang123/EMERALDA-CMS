@@ -138,32 +138,32 @@ const items = reactive([
             {
                 key: '/booking/payment',
                 icon: () => h(CheckCircleOutlined),
-                label: 'Xác nhận thanh toán',
+                label: 'Thanh toán',
                 title: 'confirm-payment',
                 onClick() {
                     router.push('/bookings/payment');
                 },
             },
             {
-                key: '/booking/profile',
+                key: '/booking/cancel-request',
                 icon: () => h(ProfileOutlined),
-                label: 'Hồ sơ đặt phòng',
-                title: 'booking-profile',
+                label: 'Yêu cầu hủy phòng',
+                title: 'cancel-request',
                 onClick() {
-                    router.push('/bookings/profile');
+                    router.push('/bookings/cancel-request');
                 },
             },
         ],
     },
-    {
-        key: '/feature',
-        icon: () => h(AppstoreOutlined),
-        label: 'Đặc tính phòng',
-        title: 'room-feature',
-        onClick() {
-            router.push('/feature');
-        },
-    },
+    // {
+    //     key: '/feature',
+    //     icon: () => h(AppstoreOutlined),
+    //     label: 'Đặc tính phòng',
+    //     title: 'room-feature',
+    //     onClick() {
+    //         router.push('/feature');
+    //     },
+    // },
     {
         key: '/amenity',
         icon: () => h(ToolOutlined),
@@ -232,30 +232,30 @@ const handleMenuClick = (key: string) => {
     }
 };
 
-onMounted(async () => {
-    const token = useCookie('access_token').value;
-    if (token) {
-        try {
-            const user = await $fetch<IUser>('/api/user/info', {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                },
-                baseURL: useRuntimeConfig().public.baseURL,
-            });
+// onMounted(async () => {
+//     const token = useCookie('access_token').value;
+//     if (token) {
+//         try {
+//             const user = await $fetch<IUser>('/api/user/info', {
+//                 headers: {
+//                     Authorization: `Bearer ${token}`
+//                 },
+//                 baseURL: useRuntimeConfig().public.baseURL,
+//             });
 
-            if (user) {
-                setUserInfo(user);
-                setAccessToken(token);
-            }
-            else {
-                setAccessToken('');
-                router.push('/login');
-            }
-        } catch (err) {
-            console.error('Fetch Error:', err);
-            setAccessToken('');
-            router.push('/login');
-        }
-    }
-});
+//             if (user) {
+//                 setUserInfo(user);
+//                 setAccessToken(token);
+//             }
+//             else {
+//                 setAccessToken('');
+//                 router.push('/login');
+//             }
+//         } catch (err) {
+//             console.error('Fetch Error:', err);
+//             setAccessToken('');
+//             router.push('/login');
+//         }
+//     }
+// });
 </script>
