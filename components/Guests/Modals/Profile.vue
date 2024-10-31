@@ -2,7 +2,7 @@
   <div>
     <!-- Modal chi tiết user -->
     <a-modal
-      v-model:visible="isModalVisible"
+      v-model:open="isModalVisible"
       title="Chi tiết người dùng"
       @ok="handleOk"
       @cancel="handleCancel"

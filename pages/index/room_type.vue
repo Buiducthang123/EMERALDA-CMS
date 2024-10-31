@@ -5,7 +5,7 @@
             <a-button type="primary" @click="openModalCreate = true">Thêm Loại Phòng</a-button>
         </div>
 
-        <a-table :columns="columns" :data-source="roomTypeData || []" bordered class="w-full"
+        <a-table :columns="columns" :data-source="roomTypeDataFiltered || []" bordered class="w-full"
             childrenColumnName="mx-auto" :pagination="false">
             <template #bodyCell="{ column, text, record }">
                 <template v-if="column.dataIndex === 'main_image'">
@@ -45,20 +45,26 @@
                         </a-tooltip>
                     </div>
                     <div class="flex space-x-2">
-                        <a-input-search v-model:value="filter.name" placeholder="Tìm kiếm loại phòng" enter-button
-                            class="w-60" />
-                    </div>
+                    <a-select v-model:value="filter.name" placeholder="Chọn loại phòng" class="w-60">
+                        <a-select-option :value="undefined">
+                        Tất cả
+                        </a-select-option>
+                        <a-select-option v-for="item in roomTypeData" :key="item.name" :value="item.name">
+                            {{ item.name }}
+                        </a-select-option>
+                    </a-select>
+            </div>
                 </div>
             </template>
         </a-table>
-        <LazyRoomTypesModalEdit v-if="openModalUpdate" :room-type="roomTypeSelected || undefined" :open="openModalUpdate"
+        <LazyRoomTypesModalEdit v-show="openModalUpdate" :room-type="roomTypeSelected || undefined" :open="openModalUpdate"
             @handle-cancel="openModalUpdate = false" @refresh-room-type="refreshRoomType" />
 
         <LazyRoomTypesModalCreate v-if="openModalCreate" :open="openModalCreate" @handle-cancel="openModalCreate = false"
             @refresh-room-type="refreshRoomType" />
 
-        <room-type-modal-delete v-if="openModalDelete" :room-type="roomTypeSelected" :open="openModalDelete"
-            @handle-cancel="openModalDelete = false" @refresh-room-type="refreshRoomType" />
+        <RoomTypesModalDelete v-if="openModalDelete" :room-type="roomTypeSelected" :room-type-id="roomTypeSelected?.id" :open="openModalDelete"
+            @handleCancel="openModalDelete = false" @refreshRoomTypes="refreshRoomType" />
     </div>
 </template>
 
@@ -71,8 +77,7 @@ const openModalUpdate = ref(false);
 const openModalCreate = ref(false);
 const openModalDelete = ref(false);
 const authStore = useAuthStore();
-const selectedRoomType = ref<IRoomType | null>(null);
-const { accessToken } = authStore;
+const accessToken = computed(() => authStore.accessToken);
 const columns = ref([
     {
         title:'Ảnh đại diện',
@@ -106,8 +111,7 @@ const columns = ref([
 ]);
 
 const filter = reactive({
-    name: '',
-    page: 1,
+    name: undefined,
 });
 
 const { data: roomTypeData, refresh: refreshRoomType } = await useFetch<IRoomType[]>('api/room-types', {
@@ -115,7 +119,7 @@ const { data: roomTypeData, refresh: refreshRoomType } = await useFetch<IRoomTyp
     baseURL: useRuntimeConfig().public.baseURL,
     headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`
+        'Authorization': `Bearer ${accessToken.value}`
     },
     query: filter,
 });
@@ -123,8 +127,19 @@ const { data: roomTypeData, refresh: refreshRoomType } = await useFetch<IRoomTyp
 const roomTypeSelected = ref<IRoomType | any>();
 
 const handleResetFilter = () => {
-    filter.name = '';
+    refreshRoomType();
+    filter.name = undefined;
 }
+
+const roomTypeDataFiltered = computed(() => {
+    if (!filter.name) return roomTypeData.value;
+    if ( roomTypeData.value && roomTypeData.value.length>0) {
+        console.log(roomTypeData.value);
+        
+        return roomTypeData.value.filter((item) => item.name == filter.name);
+    }
+    return [];
+});
 
 </script>
 

@@ -11,5 +11,5 @@ export const EBookingStatusText: Record<EBookingStatus, string> = {
    [EBookingStatus.WAITING_CHECK_IN]: 'Chờ nhận phòng / Đã đặt cọc',
    [EBookingStatus.CHECKED_IN]: 'Đã nhận phòng',
    [EBookingStatus.CHECKED_OUT]: 'Đã trả phòng',
-   [EBookingStatus.CANCELLED]: 'Đã hủy',
+   [EBookingStatus.CANCELLED]: 'Hủy',
 };

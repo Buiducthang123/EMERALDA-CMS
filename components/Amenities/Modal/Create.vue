@@ -1,5 +1,5 @@
 <template>
-    <a-modal v-model:visible="props.visible" title="Tạo tiện ích mới" @ok="handleCreate" @cancel="handleCancel">
+    <a-modal v-model:open="props.visible" title="Tạo tiện ích mới" @ok="handleCreate" @cancel="handleCancel">
         <a-form :form="formData" layout="vertical">
             <a-form-item label="Tên tiện ích" name="name" >
                 <a-input v-model:value="formData.name" />

@@ -1,5 +1,5 @@
 <template>
-    <a-modal v-model:visible="props.visible" title="Xóa tiện ích" @ok="handleDelete" @cancel="handleCancel">
+    <a-modal v-model:open="props.visible" title="Xóa tiện ích" @ok="handleDelete" @cancel="handleCancel">
         <p>Bạn có chắc chắn muốn xóa tiện ích này không?</p>
     </a-modal>
 </template>

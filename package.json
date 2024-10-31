@@ -17,12 +17,14 @@
     "@nuxtjs/tailwindcss": "^6.12.1",
     "@pinia/nuxt": "^0.5.4",
     "ant-design-vue": "^4.2.3",
+    "chart.js": "^4.4.5",
     "ckeditor5": "^43.0.0",
     "dayjs-nuxt": "^2.1.11",
     "nuxt": "^3.13.0",
     "nuxt-lodash": "^2.5.3",
     "pinia": "^2.2.2",
     "vue": "latest",
+    "vue-chartjs": "^5.3.1",
     "vue-router": "latest",
     "vuedraggable": "^4.1.0"
   }
