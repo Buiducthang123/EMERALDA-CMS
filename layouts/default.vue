@@ -58,7 +58,8 @@ import {
     SettingOutlined,
     ToolOutlined,
     ApartmentOutlined,
-    LogoutOutlined, // Importing the LogoutOutlined icon
+    LogoutOutlined,
+    GiftOutlined, // Importing the LogoutOutlined icon
 } from '@ant-design/icons-vue';
 import type { MenuProps } from 'ant-design-vue';
 import type { IUser } from '~/interfaces/IUser';
@@ -173,42 +174,51 @@ const items = reactive([
             router.push('/amenity');
         },
     },
+    // {
+    //     key: '/feedback',
+    //     icon: () => h(CommentOutlined),
+    //     label: 'Phản hồi',
+    //     title: 'feedback',
+    //     onClick() {
+    //         router.push('/feedback');
+    //     },
+    // },
     {
-        key: '/feedback',
-        icon: () => h(CommentOutlined),
-        label: 'Phản hồi',
-        title: 'feedback',
-        onClick() {
-            router.push('/feedback');
-        },
-    },
-    {
-        key: '/rating',
+        key: '/reviews',
         icon: () => h(StarOutlined),
         label: 'Đánh giá',
-        title: 'rating',
+        title: 'review',
         onClick() {
-            router.push('/rating');
+            router.push('/reviews');
         },
     },
+    // {
+    //     key: '/facility',
+    //     icon: () => h(ToolOutlined),
+    //     label: 'Cơ sở vật chất và trang thiết bị',
+    //     title: 'facility',
+    //     onClick() {
+    //         router.push('/facility');
+    //     },
+    // },
+    // {
+    //     key: '/setting',
+    //     icon: () => h(SettingOutlined),
+    //     label: 'Thiết lập',
+    //     title: 'setting',
+    //     onClick() {
+    //         router.push('/setting');
+    //     },
+    // },
     {
-        key: '/facility',
-        icon: () => h(ToolOutlined),
-        label: 'Cơ sở vật chất và trang thiết bị',
-        title: 'facility',
+        key: '/voucher',
+        icon: () => h(GiftOutlined),
+        label: 'Voucher',
+        title: 'voucher',
         onClick() {
-            router.push('/facility');
+            router.push('/voucher');
         },
-    },
-    {
-        key: '/setting',
-        icon: () => h(SettingOutlined),
-        label: 'Thiết lập',
-        title: 'setting',
-        onClick() {
-            router.push('/setting');
-        },
-    },
+    }
 ]);
 
 watch(
@@ -217,11 +227,6 @@ watch(
         state.selectedKeys = [newPath];
     }
 );
-
-const handleClick: MenuProps['onClick'] = (e: any) => {
-    console.log('click', e);
-    router.push(e.key);
-};
 
 const handleMenuClick = (key: string) => {
     if (key === 'setting') {
@@ -232,30 +237,4 @@ const handleMenuClick = (key: string) => {
     }
 };
 
-// onMounted(async () => {
-//     const token = useCookie('access_token').value;
-//     if (token) {
-//         try {
-//             const user = await $fetch<IUser>('/api/user/info', {
-//                 headers: {
-//                     Authorization: `Bearer ${token}`
-//                 },
-//                 baseURL: useRuntimeConfig().public.baseURL,
-//             });
-
-//             if (user) {
-//                 setUserInfo(user);
-//                 setAccessToken(token);
-//             }
-//             else {
-//                 setAccessToken('');
-//                 router.push('/login');
-//             }
-//         } catch (err) {
-//             console.error('Fetch Error:', err);
-//             setAccessToken('');
-//             router.push('/login');
-//         }
-//     }
-// });
 </script>

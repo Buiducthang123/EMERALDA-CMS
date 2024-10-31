@@ -14,7 +14,6 @@
 
         <template v-if="column.dataIndex === 'status'">
           <a-tag v-if="text==ERoomStatus.AVAILABLE" color="green">{{ RoomStatusText[text] }}</a-tag>
-          <a-tag v-else-if="text==ERoomStatus.BOOKED" color="red">{{ RoomStatusText[text] }}</a-tag>
           <a-tag v-else-if="text==ERoomStatus.MAINTENANCE" color="yellow">{{ RoomStatusText[text] }}</a-tag>
         </template>
 
@@ -42,7 +41,7 @@
             </a-tooltip>
           </div>
           <div class="flex space-x-2">
-            <a-select v-model:value="filter.room_type" placeholder="Loại phòng" style="width: 200px"
+            <a-select v-model:value="filter.room_type_id" placeholder="Loại phòng" style="width: 200px"
               @change="fetchRoomData">
               <a-select-option value="">Tất cả</a-select-option>
               <a-select-option v-for="(type, index) in roomType" :key="type.id" :value="type.id">{{ type.name
@@ -53,7 +52,6 @@
               <a-select-option value="">Tất cả</a-select-option>
               <a-select-option :value="ERoomStatus.AVAILABLE">{{ RoomStatusText[ERoomStatus.AVAILABLE]
                 }}</a-select-option>
-              <a-select-option :value="ERoomStatus.BOOKED">{{ RoomStatusText[ERoomStatus.BOOKED] }}</a-select-option>
               <a-select-option :value="ERoomStatus.MAINTENANCE">{{ RoomStatusText[ERoomStatus.MAINTENANCE]
                 }}</a-select-option>
             </a-select>
@@ -66,10 +64,10 @@
       <a-pagination v-model:current="filter.page" :page-size="roomData?.per_page" :total="roomData?.total"
         show-less-items />
     </div>
-    <rooms-modal-edit v-show="openModalUpdate" :room="roomSelected||undefined" :open="openModalUpdate"
+    <rooms-modal-edit v-if="openModalUpdate" :room="roomSelected||undefined" :open="openModalUpdate"
       @handle-cancel="openModalUpdate=false" @refresh-room="refreshRoom" />
 
-    <rooms-modal-create :open="openModalCreate" @handle-cancel="openModalCreate=false"
+    <rooms-modal-create v-if="openModalCreate" :open="openModalCreate" @handle-cancel="openModalCreate=false"
       @refresh-room="refreshRoom" />
 
     <rooms-modal-delete :room="roomSelected" :open="openModalDelete" @handle-cancel="openModalDelete=false"
@@ -113,7 +111,7 @@ const columns = ref([
 
 const filter = reactive({
   room_number: '',
-  room_type: '',
+  room_type_id: '',
   status: '',
   price: '',
   page: 1,
@@ -137,7 +135,7 @@ function fetchRoomData() {
 
 const handleResetFilter = () => {
   filter.room_number = '';
-  filter.room_type = '';
+  filter.room_type_id = '';
   filter.status = '';
   filter.price = '';
 }

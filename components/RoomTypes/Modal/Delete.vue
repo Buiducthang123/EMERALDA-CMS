@@ -17,34 +17,36 @@ import { useAuthStore } from '#imports';
 import { message } from 'ant-design-vue';
 
 const authStore = useAuthStore();
-const { accessToken } = authStore;
+const accessToken = computed(() => authStore.accessToken);
 
 const props = defineProps<{
   open: boolean;
   roomTypeId: number;
 }>();
 
-const emit = defineEmits(['handleOk', 'handleCancel', 'refreshRoomTypes']);
+const emit = defineEmits([ 'handleCancel', 'refreshRoomTypes']);
 
 const handleDelete = async () => {
-  try {
-    const result = await $fetch.raw(`/api/room-types/${props.roomTypeId}`, {
-      method: 'DELETE',
-      baseURL: useRuntimeConfig().public.baseURL,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`
+  await $fetch.raw(`/api/room-types/${props.roomTypeId}`, {
+    method: 'DELETE',
+    baseURL: useRuntimeConfig().public.baseURL,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${accessToken.value}`
+    },
+    onResponse: ({ response }) => {
+      if (response.ok) {
+        message.success('Xóa loại phòng thành công');
+        emit('refreshRoomTypes');
       }
-    });
-    if (result.ok) {
-      message.success('Xóa loại phòng thành công');
-      emit('refreshRoomTypes');
-      emit('handleOk');
-    }
-  } catch (e) {
-    console.log(e);
-    message.error('Có lỗi xảy ra');
-  }
+      else {
+        message.error(response._data.message || 'Xóa loại phòng thất bại');
+      }
+      emit('handleCancel')
+      
+    },
+  });
+  
 };
 </script>
 

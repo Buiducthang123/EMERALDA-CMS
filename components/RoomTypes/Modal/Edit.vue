@@ -1,5 +1,5 @@
 <template>
-    <a-modal v-model:visible="props.open" title="Chỉnh Sửa Loại Phòng" :width="1000" style="top: 20px" @ok="handleOk"
+    <a-modal v-model:open="props.open" title="Chỉnh Sửa Loại Phòng" :width="1000" style="top: 20px" @ok="handleOk"
         @cancel="handleCancel">
         <div class="h-[70vh] overflow-y-scroll">
             <a-form :model="form" :rules="rules" ref="formRef" layout="vertical">

@@ -43,32 +43,58 @@
                             ECancelRequestStatus] }}</p>
                     </div>
                     <div class="expanded-row-section">
-                        <h6 class="section-title">Thông tin tài khoản ngân hàng</h6>
-                        <p><strong>Số tài khoản:</strong> {{ record.bank_account_info.bankAccountNumber }}</p>
-                        <p><strong>Tên người nhận:</strong> {{ record.bank_account_info.recipientName }}</p>
-                        <p><strong>Tên ngân hàng:</strong> {{ record.bank_account_info.bankName }}</p>
-                    </div>
-
-                    <div class="expanded-row-section">
                         <h6 class="section-title">Cập nhật trạng thái</h6>
                         <div class="flex flex-col gap-6">
-                            <a-select v-model:value="statusSelectUpdate" placeholder="Cập nhật trạng thái" class="w-full">
-                                <a-select-option :value="ECancelRequestStatus.PENDING">{{ECancelRequestStatusLabel[ECancelRequestStatus.PENDING]}}</a-select-option>
-                                <a-select-option :value="ECancelRequestStatus.WAITING_COMPLETE">{{ECancelRequestStatusLabel[ECancelRequestStatus.WAITING_COMPLETE]}}</a-select-option>
-                                <a-select-option :value="ECancelRequestStatus.COMPLETED">{{ECancelRequestStatusLabel[ECancelRequestStatus.COMPLETED]}}</a-select-option>
-                                <a-select-option :value="ECancelRequestStatus.REJECTED">{{ECancelRequestStatusLabel[ECancelRequestStatus.REJECTED]}}</a-select-option>
-                                <a-select-option :value="ECancelRequestStatus.CANCELED">{{ECancelRequestStatusLabel[ECancelRequestStatus.CANCELED]}}</a-select-option>
+                            <a-select v-model:value="statusSelectUpdate" placeholder="Cập nhật trạng thái"
+                                class="w-full">
+                                <a-select-option
+                                    :value="ECancelRequestStatus.PENDING">{{ ECancelRequestStatusLabel[ECancelRequestStatus.PENDING] }}</a-select-option>
+                                <a-select-option
+                                    :value="ECancelRequestStatus.WAITING_COMPLETE">{{ ECancelRequestStatusLabel[ECancelRequestStatus.WAITING_COMPLETE] }}</a-select-option>
+                                <a-select-option v-if="record.status == ECancelRequestStatus.WAITING_COMPLETE"
+                                    :value="ECancelRequestStatus.COMPLETED">{{ ECancelRequestStatusLabel[ECancelRequestStatus.COMPLETED] }}</a-select-option>
+                                <a-select-option
+                                    :value="ECancelRequestStatus.REJECTED">{{ ECancelRequestStatusLabel[ECancelRequestStatus.REJECTED] }}</a-select-option>
                             </a-select>
 
-                            <a-button type="primary" @click="updateStatus(record.id)" class="w-24">Lưu lại</a-button>
+                            <a-popconfirm  title="Xác nhận cập nhật trạng thái" @confirm="updateStatus(record.id)">
+                                <a-button type="primary" @click="" class="w-24">Lưu lại</a-button>
+                             </a-popconfirm>
                         </div>
 
                     </div>
+                    <div v-if="record.status == ECancelRequestStatus.WAITING_COMPLETE" class="expanded-row-section">
+                        <h6 class="section-title">Hoàn tiền</h6>
+                        <p>
+                            <span>Mã đơn hoàn tiền: </span>
+                            <span>{{ record.order_id }}</span>
+                        </p>
+                        <p>
+                            <span>Số tiền hoàn lại: </span>
+                            <span>{{ formatPrice(record.refund_amount) }}</span>
+                        </p>
+                        <p>
+                            <span>Ngày tạo: </span><span>{{ dayjs(record.created_at).format('DD/MM/YYYY') }}</span>
+                        </p>
+                        <p>
+                            <span>Người nhận: </span>
+                            <span>{{ record.user.name }}</span>
+                        </p>
+                        <p>
+                            <span>Email: </span>
+                            <span>{{ record.user.email }}</span>
+                        </p>
+                        <p>
+                            <span>Số điện thoại: </span>
+                            <span>{{ record.user.phone_number }}</span>
+                        </p>
+                        <a-popconfirm  title="Xác nhận hoàn trả" @confirm="handleRefund(record)">
+                            <a-button type="primary" class="mt-5">Hoàn tiền ngay</a-button>
+                        </a-popconfirm>
+                    </div>
+
                 </div>
-                <div v-if="record.status == ECancelRequestStatus.WAITING_COMPLETE">
-                    Tạo hóa đơn hoàn tiền ...
-                    //chưa code xong ...
-                </div>  
+
             </template>
         </a-table>
     </div>
@@ -95,10 +121,11 @@ const access_token = computed(() => useAuthStore().accessToken);
 const query = reactive({
     'filter[order_id]': filters.value.order_id,
     'filter[user_id]': filters.value.user_id,
-    'filter[status]': filters.value.status
+    'filter[status]': filters.value.status,
+    'p[]': ['user']
 });
 
-const { data:cancelRequests, refresh:refreshData } = await useFetch<ICancelRequest[]>('api/cancel-request', {
+const { data: cancelRequests, refresh: refreshData } = await useFetch<ICancelRequest[]>('api/cancel-request', {
     method: 'GET',
     baseURL: useRuntimeConfig().public.baseURL,
     query: query,
@@ -198,19 +225,42 @@ const updateStatus = async (id: number) => {
             headers: {
                 Authorization: `Bearer ${access_token.value}`
             },
-            onResponse: ({response}) => {
-               if (response.status === 200) {
-                  refreshData();
-                  message.success('Cập nhật trạng thái thành công');
-               }
-               else {
-                  message.error('Cập nhật trạng thái thất bại');
-               }
+            onResponse: ({ response }) => {
+                if (response.status === 200) {
+                    refreshData();
+                    message.success('Cập nhật trạng thái thành công');
+                }
+                else {
+                    message.error('Cập nhật trạng thái thất bại');
+                }
             }
         });
     }
 };
 
+const handleRefund = async (record:any) => {
+    await $fetch(`api/refund`, {
+        method: 'POST',
+        baseURL: useRuntimeConfig().public.baseURL,
+        headers: {
+            Authorization: `Bearer ${access_token.value}`
+        },
+        body: {
+            order_id: record.order_id,
+            room_id: record.room_id,
+            cancel_request_id: record.id,
+        },
+        onResponse: ({ response }) => {
+            if (response.status === 200) {
+                refreshData();
+                message.success('Hoàn tiền thành công');
+            }
+            else {
+                message.error('Hoàn tiền thất bại');
+            }
+        }
+    });
+};
 </script>
 
 <style scoped>

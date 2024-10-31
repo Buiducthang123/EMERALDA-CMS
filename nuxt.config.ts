@@ -9,6 +9,11 @@ export default defineNuxtConfig({
     "nuxt-lodash",
     'dayjs-nuxt'
   ],
+  plugins: [
+    '~/plugins/vue-chartjs.js'
+  ],
+
+  css: ['~/assets/css/main.css'],
 
   vite: {
     optimizeDeps: {

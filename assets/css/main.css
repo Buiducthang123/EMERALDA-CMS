@@ -1,0 +1,45 @@
+ol {
+    list-style-type: decimal;
+    margin-left: 20px;
+}
+  
+ul {
+   list-style-type: disc;
+   margin-left: 20px;
+}
+
+ul li p, ol li p {
+    margin-left: 20px!important
+}
+
+h1 {
+    font-size: 2em;
+    font-weight: 700;
+}
+
+h2 {
+    font-size: 1.8em;
+    font-weight: 700;
+}
+
+h3 {
+    font-size: 1.5em;
+    font-weight: 700;
+}
+
+h4 {
+    font-size: 1.2em;
+    font-weight: 700;
+}
+
+h5 {
+    font-size: 1em;
+    font-weight: 700;
+}
+
+h6 {
+    font-size: 0.8em;
+    font-weight: 700;
+    margin-bottom: 1em;
+}
+

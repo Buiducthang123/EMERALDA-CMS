@@ -1,6 +1,6 @@
 <template>
   <a-modal
-    v-model:visible="isVisible"
+    v-model:open="isVisible"
     :title="isLocking ? 'Xác nhận khóa người dùng' : 'Xác nhận mở khóa người dùng'"
     @ok="handleOk"
     @cancel="handleCancel"

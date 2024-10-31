@@ -19,4 +19,5 @@ export interface IBooking {
   room?: IRoom;
   user?: IUser;
   order?: IOrder;
+  invoice?: any;
 }

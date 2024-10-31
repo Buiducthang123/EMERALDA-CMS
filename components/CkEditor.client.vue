@@ -16,13 +16,6 @@ import {
   FontSize,
   GeneralHtmlSupport,
   Heading,
-  // Image,
-  // ImageCaption,
-  // ImageInsert,
-  // ImageResize,
-  // ImageStyle,
-  // ImageToolbar,
-  // ImageUpload,
   Indent,
   IndentBlock,
   Italic,
@@ -31,7 +24,6 @@ import {
   ListProperties,
   MediaEmbed,
   MediaEmbedToolbar, 
-  // Mention,
   Paragraph,
   PasteFromOffice,
   RemoveFormat,
@@ -70,7 +62,7 @@ const props = defineProps<{
   } | boolean
 }>()
 const content = ref(props.value)
-const plugins = ref((isBoolean(props.overwrite) && props.overwrite) || (isObject(props.overwrite) && props.overwrite['plugins']) ?
+const plugins = ref((isBoolean(props.overwrite) && props.overwrite) || (isObject(props.overwrite) && props.overwrite['plugins']) ? 
     props.plugins : [
       Alignment,
       AutoImage,
@@ -87,13 +79,6 @@ const plugins = ref((isBoolean(props.overwrite) && props.overwrite) || (isObject
       FontSize,
       GeneralHtmlSupport,
       Heading,
-      // Image,
-      // ImageCaption,
-      // ImageInsert,
-      // ImageResize,
-      // ImageStyle,
-      // ImageToolbar,
-      // ImageUpload,
       Indent,
       IndentBlock,
       Italic,
@@ -107,7 +92,6 @@ const plugins = ref((isBoolean(props.overwrite) && props.overwrite) || (isObject
       RemoveFormat,
       SelectAll,
       ShowBlocks,
-      // SimpleUploadAdapter,
       SpecialCharacters,
       SpecialCharactersArrows,
       SpecialCharactersCurrency,
@@ -129,11 +113,10 @@ const plugins = ref((isBoolean(props.overwrite) && props.overwrite) || (isObject
       Underline,
       Undo,
       WordCount,
-      // Mention,
       ...(props.plugins ?? [])
     ]
 )
-const toolbar = ref((isBoolean(props.overwrite) && props.overwrite) || (isObject(props.overwrite) && props.overwrite['toolbar']) ?
+const toolbar = ref((isBoolean(props.overwrite) && props.overwrite) || (isObject(props.overwrite) && props.overwrite['toolbar']) ? 
     props.toolbar : {
       items: [
         'undo',
@@ -147,6 +130,7 @@ const toolbar = ref((isBoolean(props.overwrite) && props.overwrite) || (isObject
         'code',
         '|',
         'fontBackgroundColor',
+        'fontSize',
         'fontColor',
         'superscript',
         'subscript',
@@ -169,13 +153,14 @@ const toolbar = ref((isBoolean(props.overwrite) && props.overwrite) || (isObject
         'showBlocks',
         'findAndReplace',
         'removeFormat',
-        'selectAll'
+        'selectAll',
+        '|', 'strikethrough', 'subscript', 'superscript',         
       ],
       shouldNotGroupWhenFull: true,
       ...props.toolbar
     }
 )
-const editorConfig = computed(() => (isBoolean(props.overwrite) && props.overwrite) || (isObject(props.overwrite) && props.overwrite['config']) ?
+const editorConfig = computed(() => (isBoolean(props.overwrite) && props.overwrite) || (isObject(props.overwrite) && props.overwrite['config']) ? 
     props.config : {
       plugins: plugins.value,
       removePlugins: ['MediaEmbedToolbar'],
@@ -198,13 +183,6 @@ const editorConfig = computed(() => (isBoolean(props.overwrite) && props.overwri
           'tableProperties'
         ]
       },
-      // simpleUpload: {
-      //   uploadUrl:
-      //     import.meta.env.VITE_API_URL + `/v1/upload/ckeditor?type=${props.type}&id=${props.id}`,
-      //   headers: {
-      //     Authorization: `Bearer ${auth.accessToken}`
-      //   }
-      // },
       htmlSupport: {
         allow: [],
         disallow: []
@@ -237,5 +215,5 @@ defineExpose({insertTextAtCursor})
 </template>
 
 <style scoped>
-
+/* Add your styles here if needed */
 </style>

@@ -71,7 +71,7 @@ const handleSubmit = async () => {
             notification.success({
               message: 'Đăng nhập thành công',
             });
-            router.push('/');
+            navigateTo('/');
           } else {
             notification.error({
               message: 'Bạn không có quyền truy cập',
