@@ -13,7 +13,7 @@
                     <a-input v-model:value="form.intro_description" placeholder="Nhập mô tả ngắn" />
                 </a-form-item>
                 <a-form-item label="Mô tả" name="description">
-                    <CkEditor v-if="props.open" v-model:value="form.description"/>
+                    <CkEditor v-if="props.open" v-model="form.description"/>
                 </a-form-item>
                 <div class="flex gap-10">
                     <a-form-item label="Giá" name="price">
@@ -121,8 +121,8 @@ const rules: Record<string, Rule[]> = {
     ],
 };
 
-watch(() => props.open, (newVal) => {
-    if (newVal && props.roomType) {
+onMounted(() => {
+    if (props.roomType) {
         Object.assign(form, props.roomType);
     }
 });

@@ -57,7 +57,7 @@
                 </div>
             </template>
         </a-table>
-        <LazyRoomTypesModalEdit v-show="openModalUpdate" :room-type="roomTypeSelected || undefined" :open="openModalUpdate"
+        <LazyRoomTypesModalEdit v-if="openModalUpdate" :room-type="roomTypeSelected || undefined" :open="openModalUpdate"
             @handle-cancel="openModalUpdate = false" @refresh-room-type="refreshRoomType" />
 
         <LazyRoomTypesModalCreate v-if="openModalCreate" :open="openModalCreate" @handle-cancel="openModalCreate = false"
