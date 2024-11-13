@@ -1,6 +1,6 @@
 <template>
   <div class="voucher-container p-6 bg-gray-100 min-h-screen">
-    <h1 class="text-2xl font-bold">Quản Lý khuyến mãi</h1>
+    <h1 class="text-2xl font-bold mb-4">Quản Lý khuyến mãi</h1>
     <a-button type="primary" @click="handleCreateVoucher">Thêm Voucher</a-button>
     <a-table :columns="columns" :dataSource="vouchers || []" rowKey="id" class="mt-6">
       <template #bodyCell="{ column, text, record }">
@@ -28,9 +28,9 @@
       </template>
     </a-table>
 
-    <LazyVouchersCreate :open="isCreateVoucherModalOpen" @handle-cancel="()=>{isCreateVoucherModalOpen = false}" @refresh-voucher="" />
+    <LazyVouchersCreate :open="isCreateVoucherModalOpen" @handle-cancel="()=>{isCreateVoucherModalOpen = false}" @refresh-voucher="fetchVouchers" />
     <VouchersEdit v-if="isEditVoucherModalOpen" :open="isEditVoucherModalOpen" :voucher="selectedVoucher" @handle-cancel="isEditVoucherModalOpen = false" @refresh-voucher="fetchVouchers" />
-    <VouchersDetail :open="isDetailVoucherModalOpen" :voucher="selectedVoucher" @handle-cancel="isDetailVoucherModalOpen = false" />
+    <VouchersDetail :open="isDetailVoucherModalOpen" :voucher="selectedVoucher" @handle-cancel="isDetailVoucherModalOpen = false" @refresh-voucher="fetchVouchers" />
   </div>
 </template>
 

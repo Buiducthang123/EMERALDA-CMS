@@ -10,8 +10,10 @@
         <template #previewMask>
           <div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 gap-6">
             <span class="hover:text-blue-500 transition-all">Xem</span>
-            <span class="hover:text-blue-500 transition-all">Sửa</span>
-            <span class="hover:text-blue-500 transition-all">Xóa</span>
+            <span class="hover:text-blue-500 transition-all" @click="()=>{
+              images.splice(index,1)
+              emit('update:modelValue', images)
+            }">Xóa</span>
           </div>
         </template>
       </a-image>
@@ -19,7 +21,7 @@
   </div>
 
   <div class="pb-4 flex gap-4 overflow-x-scroll cursor-move" v-else>
-    <draggable name="abc" item-key="element" v-model="images" tag="transition-group" @change="emit('update:value', images)">
+    <draggable name="abc" item-key="element" v-model="images" tag="transition-group" @change="emit('update:modelValue', images)">
       <template #item="{ element, index }">
         <img :key="index" :src="element" class="w-[200px] h-44 object-cover" />
       </template>
@@ -44,13 +46,13 @@ import type { UploadChangeParam, UploadProps } from 'ant-design-vue';
 import { handleUploadImg } from '~/utils/file-upload';
 
 const props = defineProps<{
-  value: string[];
+  modelValue: string[];
   edit: boolean;
 }>();
 
-const images = ref(props.value);
+const images = ref([...props.modelValue]);
 
-const emit = defineEmits(['update:value']);
+const emit = defineEmits(['update:modelValue','handleUpdateThumbnail']);
 
 const isChangeImageIndex = ref(false);
 
@@ -61,12 +63,14 @@ const loading = ref<boolean>(false);
 const handleChange = async (info: UploadChangeParam) => {
   try {
     const newImages = await handleUploadImg(info.fileList);
-    images.value = [...images.value, newImages];
-    console.log('images', images.value);
-  } catch (e) {
+    images.value = [...images.value, newImages]; 
+    emit('update:modelValue', images.value);
+  }catch (e) {
     message.error('Có lỗi xảy ra');
   }
 };
+
+
 </script>
 
 <style scoped>

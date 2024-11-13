@@ -73,8 +73,14 @@ const form = reactive<VoucherForm>({
 });
 
 const rules: Record<string, Rule[]> = {
-  name: [{ required: true, message: 'Vui lòng nhập tên voucher', trigger: 'blur' }],
-  code: [{ required: true, message: 'Vui lòng nhập mã voucher', trigger: 'blur' }],
+  name: [
+    { required: true, message: 'Vui lòng nhập tên voucher', trigger: 'blur' },
+    { max: 255, message: 'Tên voucher không được vượt quá 255 ký tự', trigger: 'blur' },
+  ],
+  code: [
+    { required: true, message: 'Vui lòng nhập mã voucher', trigger: 'blur' },
+    { max: 20 , message: 'Mã voucher không được vượt quá 20 ký tự', trigger: 'blur' },
+  ],
   discount_amount: [{ required: true, message: 'Vui lòng nhập số tiền giảm giá', trigger: 'blur' }],
   valid_from: [{ required: true, message: 'Vui lòng chọn ngày bắt đầu hiệu lực', trigger: 'blur' }],
   valid_until: [{ required: true, message: 'Vui lòng chọn ngày hết hạn', trigger: 'blur' }],
@@ -92,7 +98,6 @@ const authStore = useAuthStore();
 const token = computed(() => authStore.accessToken);
 
 const handleOk = async () => {
-  try {
     await formRef.value.validate();
     const config = useRuntimeConfig();
     const validFromFormatted = dayjs(form.valid_from).format('YYYY-MM-DD');
@@ -108,16 +113,21 @@ const handleOk = async () => {
         valid_from: validFromFormatted,
         valid_until: validUntilFormatted,
       },
+      onResponse: ({ response }) => {
+        if (response.ok) {
+          emit('refresh-voucher');
+          emit('handle-cancel');
+          message.success('Tạo voucher thành công');
+        }
+        else {
+          notification.error({
+            message: 'Có lỗi xảy ra',
+            description: response._data.message || 'Vui lòng thử lại sau',
+          });
+        }
+      },
     });
-    message.success('Thêm voucher thành công');
-    emit('refresh-voucher');
-    emit('handle-cancel');
-  } catch (error) {
-    console.error('Failed to create voucher:', error);
-    notification.error({
-      message: 'Có lỗi xảy ra',
-    });
-  }
+   
 };
 
 const handleCancel = () => {
