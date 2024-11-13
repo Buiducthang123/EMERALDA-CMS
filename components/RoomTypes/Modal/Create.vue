@@ -47,7 +47,7 @@
                     </div>
                 </a-form-item>
                 <a-form-item label="Ảnh mô tả thêm" name="thumbnails">
-                    <Slider v-model:value="form.thumbnails" :edit="true" />
+                    <Slider v-model:model-value="form.thumbnails" :edit="true" />
                 </a-form-item>
             </a-form>
         </div>
@@ -101,9 +101,13 @@ const form = reactive<RoomTypeForm>({
 });
 
 const rules: Record<string, Rule[]> = {
-    name: [{ required: true, message: 'Vui lòng nhập tên loại phòng', trigger: 'blur' }],
+    name: [
+        { required: true, message: 'Vui lòng nhập tên loại phòng', trigger: 'blur' },
+        { max: 50, message: 'Tên loại phòng không được vượt quá 50 ký tự', trigger: 'blur'}
+    ],
     slug: [
         { required: true, message: 'Vui lòng nhập slug', trigger: 'blur' },
+        { max: 50, message: 'Slug không được vượt quá 50 ký tự', trigger: 'blur' },
         { pattern: /^[a-zA-Z0-9-]+$/, message: 'Slug chỉ được chứa chữ cái, số và dấu -', trigger: 'blur' }
     ],
     intro_description: [{ required: true, message: 'Vui lòng nhập mô tả ngắn', trigger: 'blur' }],
@@ -117,6 +121,8 @@ const rules: Record<string, Rule[]> = {
         { required: true, message: 'Vui lòng nhập diện tích', trigger: 'blur' },
         { type: 'number', min: 1, message: 'Diện tích phải lớn hơn 0', trigger: 'blur' }
     ],
+    thumbnails: [{ required: true, message: 'Vui lòng chọn ảnh mô tả thêm', trigger: 'blur' }],
+    main_image: [{ required: true, message: 'Vui lòng chọn ảnh đại diện', trigger: 'blur' }],
 };
 
 watch(() => props.open, (newVal) => {
@@ -160,12 +166,22 @@ const handleOk = async () => {
                 'Content-Type': 'application/json',
             },
             body: form,
+            onResponse:({response})=>{
+                if(response.ok){
+                    emit('refresh-room-type');
+                    emit('handle-cancel');
+                    notification.success({
+                        message: 'Thêm loại phòng thành công',
+                    });
+                }
+                else{
+                    notification.error({
+                        message: response._data.message||'Có lỗi xảy ra',
+                    });
+                }
+            }
         });
-        notification.success({
-            message: 'Thêm loại phòng thành công',
-        });
-        emit('refresh-room-type');
-        emit('handle-cancel');
+        
     } catch (error) {
         notification.error({
             message: 'Có lỗi xảy ra',

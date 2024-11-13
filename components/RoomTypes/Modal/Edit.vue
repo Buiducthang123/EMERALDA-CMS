@@ -46,8 +46,8 @@
                         </a-upload>
                     </div>
                 </a-form-item>
-                <a-form-item label="Ảnh mô tả thêm" name="thumbnails">
-                    <Slider v-model:value="form.thumbnails" :edit="true" />
+                <a-form-item label="Ảnh mô tả thêm" name="thumbnails" >
+                    <Slider v-model="form.thumbnails" :edit="true" />
                 </a-form-item>
             </a-form>
         </div>
@@ -61,7 +61,6 @@ import { notification } from 'ant-design-vue';
 import { type UploadChangeParam, type UploadProps } from 'ant-design-vue';
 import { handleUploadImg } from '~/utils/file-upload';
 import type { Rule } from 'ant-design-vue/es/form';
-import type { IFeature } from '~/interfaces/IFeature';
 import type { IAmenity } from '~/interfaces/IAmenity';
 import type { IRoomType } from '~/interfaces/IRoomType';
 
@@ -103,9 +102,13 @@ const form = reactive<RoomTypeForm>({
 });
 
 const rules: Record<string, Rule[]> = {
-    name: [{ required: true, message: 'Vui lòng nhập tên loại phòng', trigger: 'blur' }],
+    name: [
+        { required: true, message: 'Vui lòng nhập tên loại phòng', trigger: 'blur' },
+        { max: 50, message: 'Tên loại phòng không được vượt quá 50 ký tự', trigger: 'blur' },
+    ],
     slug: [
         { required: true, message: 'Vui lòng nhập slug', trigger: 'blur' },
+        { max: 50, message: 'Slug không được vượt quá 50 ký tự', trigger: 'blur' },
         { pattern: /^[a-zA-Z0-9-]+$/, message: 'Slug chỉ được chứa chữ cái, số và dấu -', trigger: 'blur' }
     ],
     intro_description: [{ required: true, message: 'Vui lòng nhập mô tả ngắn', trigger: 'blur' }],
@@ -119,9 +122,11 @@ const rules: Record<string, Rule[]> = {
         { required: true, message: 'Vui lòng nhập diện tích', trigger: 'blur' },
         { type: 'number', min: 1, message: 'Diện tích phải lớn hơn 0', trigger: 'blur' }
     ],
+    thumbnails: [{ required: true, message: 'Vui lòng chọn ảnh mô tả thêm', trigger: 'blur' }],
+    main_image: [{ required: true, message: 'Vui lòng chọn ảnh đại diện', trigger: 'blur' }],
 };
 
-onMounted(() => {
+onBeforeMount(() => {
     if (props.roomType) {
         Object.assign(form, props.roomType);
     }
@@ -153,12 +158,21 @@ const handleOk = async () => {
                 'Content-Type': 'application/json',
             },
             body: form,
+            onResponse: ({ response }) => {
+                if (response.ok) {
+                    notification.success({
+                        message: 'Chỉnh sửa loại phòng thành công',
+                    });
+                    emit('refresh-room-type');
+                    emit('handle-cancel');
+                } else {
+                    notification.error({
+                        message: response._data.message || 'Có lỗi xảy ra',
+                    });
+                }
+            },
         });
-        notification.success({
-            message: 'Cập nhật loại phòng thành công',
-        });
-        emit('refresh-room-type');
-        emit('handle-cancel');
+        
     } catch (error) {
         notification.error({
             message: 'Có lỗi xảy ra',
