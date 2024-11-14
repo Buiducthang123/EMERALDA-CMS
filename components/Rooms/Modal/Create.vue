@@ -98,7 +98,7 @@ const handleCreate = async () => {
       body: form,
       onResponse: ({ response }) => {
         if (response.ok) {
-          emit('handleOk');
+          emit('handleCancel');
           emit('refreshRoom');
           resetForm();
           message.success('Tạo phòng thành công');
