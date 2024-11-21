@@ -21,7 +21,8 @@
                 <a-select-option v-for="year in lastFiveYears" :key="year" :value="year">{{ year }}</a-select-option>
             </a-select>
             <a-select v-model:value="selectedMonth" @change="handleMonthChange" class="w-48">
-                <a-select-option v-for="month in months" :key="month.value" :value="month.value">{{ month.label }}</a-select-option>
+                <a-select-option v-for="month in months" :key="month.value" :value="month.value">{{ month.label
+                    }}</a-select-option>
             </a-select>
 
             <div>
@@ -34,7 +35,7 @@
                 <Pie :data="statusResponse?.statusData" :options="chartOptions" class="max-h-[300px]" />
             </div>
             <div class="chart-container bg-white p-6 rounded-lg shadow-md">
-                <h2 class="text-xl font-semibold mb-4">Số lượng đặt phòng theo tháng</h2>
+                <h2 class="text-xl font-semibold mb-4">Số lượng đặt phòng</h2>
                 <Bar :data="statusResponse?.bookingBar" :options="chartOptions" class="max-h-[300px]" />
             </div>
             <div class="chart-container bg-white p-6 rounded-lg shadow-md">
@@ -98,6 +99,17 @@ const chartOptions = ref({
             display: true,
             text: 'Chart.js Chart'
         }
+    },
+    scales: {
+        y: {
+            beginAtZero: true,
+            ticks: {
+                stepSize: 1,
+                callback: function (value) {
+                    return Number.isInteger(value) ? value : null;
+                }
+            }
+        }
     }
 });
 
@@ -137,7 +149,7 @@ function getRange(year: number, month: string | number) {
 
 const handleYearChange: SelectProps['onChange'] = value => {
     selectedYear.value = value;
-    rangeTimeSelected.value = getRange(selectedYear.value, selectedMonth.value); 
+    rangeTimeSelected.value = getRange(selectedYear.value, selectedMonth.value);
 };
 
 const handleMonthChange: SelectProps['onChange'] = value => {

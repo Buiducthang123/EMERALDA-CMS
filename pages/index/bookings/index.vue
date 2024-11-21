@@ -84,9 +84,11 @@
                       vụ</a-button>
                     <a-button v-if="currentStep === EBookingStatus.CHECKED_IN" class="editable-add-btn" type="primary"
                       style="margin-bottom: 8px" @click="handleCreateInvoice(record)">Lưu hóa đơn</a-button>
-                    <a-popconfirm v-if="currentStep === EBookingStatus.CHECKED_OUT && record?.invoice?.status!=EInvoiceStatus.PAID" title="Xác nhận rằng khách hàng đã thanh toán đủ ?" @confirm="handleUpdateInvoiceStatus(record)">
-                      <a-button class="editable-add-btn"
-                        type="primary" style="margin-bottom: 8px">Xác nhận thanh toán đủ</a-button>
+                    <a-popconfirm
+                      v-if="currentStep === EBookingStatus.CHECKED_OUT && record?.invoice?.status != EInvoiceStatus.PAID"
+                      title="Xác nhận rằng khách hàng đã thanh toán đủ ?" @confirm="handleUpdateInvoiceStatus(record)">
+                      <a-button class="editable-add-btn" type="primary" style="margin-bottom: 8px">Xác nhận thanh toán
+                        đủ</a-button>
                     </a-popconfirm>
                   </div>
                   <a-table bordered :data-source="record?.invoice?.services" :columns="columnsInvoice"
@@ -156,8 +158,13 @@
                   <div class="flex items-center justify-around">
                     <div class="mt-4 mb-6 flex gap-2 text-base items-center font-medium">
                       <span class=" text-green-500">Tiền dịch vụ: </span>
-                      <span>{{ formatPrice(record?.invoice?.services.reduce((total: number, item: any) => total +
-                        item.price * item.quantity, 0)) }}</span>
+                      <span>{{ formatPrice(
+                        record?.invoice?.services?.reduce(
+                          (total: number, item: any) => total + (Number(item?.price) || 0) * (Number(item?.quantity) ||
+                        0),
+                        0
+                        ) || 0
+                        ) }}</span>
                     </div>
 
                     <div class="mt-4 mb-6 flex gap-2 text-base items-center font-medium">
@@ -172,17 +179,21 @@
                   </div>
                   <hr>
                   <div class="text-center py-4">
-                    <a-tag v-if="record?.invoice?.status==EInvoiceStatus.PAID" color="green" >ĐÃ THANH TOÁN</a-tag>
+                    <a-tag v-if="record?.invoice?.status == EInvoiceStatus.PAID" color="green">ĐÃ THANH TOÁN</a-tag>
                     <a-tag v-else color="red">CHƯA THANH TOÁN</a-tag>
                   </div>
                   <div class="flex gap-2 justify-center pb-8 text-base font-medium ">
                     <span> Tổng số tiền phải trả: </span>
                     <span class="text-green-500">
                       {{ formatPrice(
-                        (record?.invoice?.services?.reduce(
-                          (total: number, item: any) => total + (item?.price || 0) * (item?.quantity || 0),
-                          0
-                        ) || 0) + (record?.total_price || 0) - (record?.paid_amount || 0)
+                        (
+                          (record?.invoice?.services?.reduce(
+                            (total, item) => total + (Number(item?.price) || 0) * (Number(item?.quantity) || 0),
+                            0
+                          ) || 0) +
+                          (Number(record?.total_price) || 0) -
+                          (Number(record?.paid_amount) || 0)
+                        )
                       ) }}
                     </span>
                   </div>
@@ -395,7 +406,7 @@ const onExpand = (expanded: boolean, record: IBooking) => {
   }
 };
 
-const confirmUpdateStatus = async (record:any) => {
+const confirmUpdateStatus = async (record: any) => {
   if (currentStep.value == EBookingStatus.CHECKED_IN) {
     if (!record?.invoice) {
       notification.error({
@@ -504,7 +515,7 @@ const handleAdd = (record: any) => {
   if (bookings.value) {
     bookings.value.forEach((booking) => {
       if (booking.id === record.id) {
-        if(!booking.invoice){
+        if (!booking.invoice) {
           booking.invoice = {
             services: []
           }
@@ -530,10 +541,15 @@ const invoiceForm = ref({
 const handleCreateInvoice = async (record: any) => {
   invoiceForm.value.booking_id = record.id;
   invoiceForm.value.services = record?.invoice?.services || [];
-  invoiceForm.value.service_price = (record?.invoice?.services?.reduce(
-    (total: number, item: any) => total + (item?.price || 0) * (item?.quantity || 0),
-    0
-  ) || 0) + (record?.total_price || 0) - (record?.paid_amount || 0);
+  invoiceForm.value.service_price =
+    (
+      (record?.invoice?.services?.reduce(
+        (total, item) => total + (Number(item?.price) || 0) * (Number(item?.quantity) || 0),
+        0
+      ) || 0) +
+      (Number(record?.total_price) || 0) -
+      (Number(record?.paid_amount) || 0)
+    );
   try {
     await useFetch(`/api/invoices`, {
       method: 'POST',
@@ -543,11 +559,22 @@ const handleCreateInvoice = async (record: any) => {
         'Content-Type': 'application/json',
       },
       body: invoiceForm.value,
+      onResponse: ({ response }) => {
+        if (response.ok) {
+          notification.success({
+            message: 'Tạo hóa đơn thành công',
+          });
+          refreshBookings();
+        }
+        else {
+          notification.error({
+            message: 'Tạo hóa đơn thất bại',
+            description: response.statusText,
+          });
+        }
+      }
     });
-    notification.success({
-      message: 'Tạo hóa đơn thành công',
-    });
-    refreshBookings();
+
   } catch (error: any) {
     notification.error({
       message: 'Tạo hóa đơn thất bại',

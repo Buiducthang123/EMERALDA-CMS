@@ -2,7 +2,7 @@
     <div class="min-h-screen flex flex-col">
         <!-- Header -->
         <header class="bg-gray-900 text-white p-4 flex justify-between items-center">
-            <div class="text-lg">Hotel Management Dashboard</div>
+            <div class="text-lg">Resort Management Dashboard</div>
             <a-dropdown v-if="user" class="ml-4">
                 <template #overlay>
                     <a-menu>
