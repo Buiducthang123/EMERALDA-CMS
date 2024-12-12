@@ -546,9 +546,7 @@ const handleCreateInvoice = async (record: any) => {
       (record?.invoice?.services?.reduce(
         (total, item) => total + (Number(item?.price) || 0) * (Number(item?.quantity) || 0),
         0
-      ) || 0) +
-      (Number(record?.total_price) || 0) -
-      (Number(record?.paid_amount) || 0)
+      ) || 0)
     );
   try {
     await useFetch(`/api/invoices`, {
